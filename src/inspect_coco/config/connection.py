@@ -74,6 +74,15 @@ def resolve_connection(connection_name: str | None = None) -> SnowflakeConnectio
         resolved_name = name or data.get("default_connection_name", "default")
         if resolved_name in data:
             return _parse_connection_section(data[resolved_name], resolved_name)
+        # Connection not found - collect available names for error
+        available = [
+            k for k in data if k != "default_connection_name" and isinstance(data[k], dict)
+        ]
+        raise ConnectionResolutionError(
+            f"Connection '{resolved_name}' not found in {connections_path}.\n"
+            f"Available connections: {', '.join(available)}\n"
+            f"Fix: set SNOWFLAKE_CONNECTION_NAME in your .env file to one of the above."
+        )
 
     # Fall back to config.toml (older format)
     config_path = sf_home / "config.toml"
@@ -83,6 +92,13 @@ def resolve_connection(connection_name: str | None = None) -> SnowflakeConnectio
         connections = data.get("connections", {})
         if resolved_name in connections:
             return _parse_connection_section(connections[resolved_name], resolved_name)
+        # Connection not found
+        available = list(connections.keys())
+        raise ConnectionResolutionError(
+            f"Connection '{resolved_name}' not found in {config_path}.\n"
+            f"Available connections: {', '.join(available)}\n"
+            f"Fix: set SNOWFLAKE_CONNECTION_NAME in your .env file to one of the above."
+        )
 
     raise ConnectionResolutionError(
         f"No Snowflake connection found. "
@@ -118,10 +134,34 @@ def _parse_connection_section(section: dict, connection_name: str) -> SnowflakeC
     private_key_path = section.get("private_key_path") or section.get("private_key_file")
     token = section.get("token")
 
+    # Check for unsupported authenticator types
+    authenticator = section.get("authenticator", "").upper()
+    unsupported_types = [
+        "EXTERNALBROWSER",
+        "OAUTH",
+        "OAUTH_AUTHORIZATION_CODE",
+        "OAUTH_CLIENT_CREDENTIALS",
+        "USERNAME_PASSWORD_MFA",
+    ]
+    if authenticator in unsupported_types:
+        raise ConnectionResolutionError(
+            f"Connection '{connection_name}' uses authenticator '{authenticator}', "
+            f"which is not supported in Docker environments.\n"
+            f"Supported methods: SNOWFLAKE_JWT (key-pair) or PROGRAMMATIC_ACCESS_TOKEN (PAT)."
+        )
+
     # PAT fallback from environment
     if not private_key_path and not token:
         pat_env_key = f"PAT_{account.upper()}"
         token = os.environ.get(pat_env_key)
+
+    # Also check token_file_path (PAT stored in a file)
+    if not private_key_path and not token:
+        token_file = section.get("token_file_path")
+        if token_file:
+            token_path = Path(token_file).expanduser()
+            if token_path.exists():
+                token = token_path.read_text().strip()
 
     # Reject password-only configs
     if not private_key_path and not token:
@@ -131,8 +171,9 @@ def _parse_connection_section(section: dict, connection_name: str) -> SnowflakeC
                 f"which is not supported. Use key-pair (JWT) or PAT instead."
             )
         raise ConnectionResolutionError(
-            f"Connection '{connection_name}' has no supported auth method. "
-            f"Provide private_key_path (JWT) or token (PAT)."
+            f"Connection '{connection_name}' has no supported auth method.\n"
+            f"Supported: private_key_path/private_key_file (JWT) or token/token_file_path (PAT).\n"
+            f"See: https://docs.snowflake.com/en/developer-guide/snowflake-cli/connecting/configure-connections"
         )
 
     return SnowflakeConnectionConfig(

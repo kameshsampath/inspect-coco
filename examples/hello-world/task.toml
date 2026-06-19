@@ -3,12 +3,19 @@ version = "1.0"
 [metadata]
 name = "hello-world"
 description = "Simple file creation eval — verifies basic agent execution"
+# Number of runs for pass@k consistency measurement
 epochs = 3
+# IDD instruction quality threshold (0.0-1.0). Below = warning
 idd_threshold = 0.6
+# Set to true to fail (not just warn) when instruction is below threshold
+idd_strict = false
 
 [agent]
+# Max seconds for cortex exec (agent timeout)
 timeout_sec = 300
+# Safety ceiling for agentic tool-use turns
 max_turns = 10
 
 [environment]
+# Max seconds for test.sh execution
 test_timeout = 60

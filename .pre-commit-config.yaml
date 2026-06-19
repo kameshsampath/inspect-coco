@@ -1,13 +1,20 @@
 repos:
-    - repo: https://github.com/astral-sh/ruff-pre-commit
-      rev: v0.11.12
-      hooks:
-          - id: ruff
-            args: [--fix]
-          - id: ruff-format
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.12
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
 
-    - repo: https://github.com/compilerla/conventional-pre-commit
-      rev: v4.0.0
-      hooks:
-          - id: conventional-pre-commit
-            stages: [commit-msg]
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.45.0
+    hooks:
+      - id: markdownlint
+        args: [--config, .markdownlint.yml]
+        files: ^(docs/.*\.md|README\.md|examples/README\.md)$
+
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v4.0.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]

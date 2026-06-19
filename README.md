@@ -4,7 +4,9 @@ Inspect AI evaluations for Cortex Code (CoCo) agents and skills.
 
 ## Overview
 
-`inspect-coco` enables CoCo skill developers to write, run, and score deterministic evaluations of their skills using [Inspect AI](https://inspect.aisi.org.uk/) as the orchestration framework.
+`inspect-coco` enables CoCo skill developers to write, run, and score
+deterministic evaluations of their skills using
+[Inspect AI](https://inspect.aisi.org.uk/) as the orchestration framework.
 
 ## Installation
 

@@ -184,6 +184,26 @@ password = "secret123"
         ):
             resolve_connection()
 
+    def test_externalbrowser_rejected(self, sf_home: Path):
+        (sf_home / "connections.toml").write_text("""
+[default]
+account = "myorg-myaccount"
+user = "testuser"
+authenticator = "EXTERNALBROWSER"
+""")
+        with pytest.raises(ConnectionResolutionError, match="EXTERNALBROWSER.*not supported"):
+            resolve_connection()
+
+    def test_oauth_rejected(self, sf_home: Path):
+        (sf_home / "connections.toml").write_text("""
+[default]
+account = "myorg-myaccount"
+user = "testuser"
+authenticator = "OAUTH"
+""")
+        with pytest.raises(ConnectionResolutionError, match="OAUTH.*not supported"):
+            resolve_connection()
+
     def test_no_auth_method(self, sf_home: Path):
         (sf_home / "connections.toml").write_text("""
 [default]
@@ -200,7 +220,7 @@ account = "myorg-myaccount"
 user = "testuser"
 private_key_path = "/key.p8"
 """)
-        with pytest.raises(ConnectionResolutionError, match="No Snowflake connection found"):
+        with pytest.raises(ConnectionResolutionError, match="not found"):
             resolve_connection("nonexistent")
 
 
