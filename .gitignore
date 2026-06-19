@@ -45,3 +45,6 @@ logs/
 
 # Snowflake (never commit credentials)
 .snowflake/
+
+# Working notes (local only)
+work/
