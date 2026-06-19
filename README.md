@@ -1,4 +1,7 @@
-# inspect-coco
+# Inspect CoCo
+
+> [!NOTE]
+> Early development. The API may change. Not yet published to PyPI.
 
 Deterministic evaluations for
 [Cortex Code](https://docs.snowflake.com/en/user-guide/cortex-code/cortex-code)
@@ -8,20 +11,15 @@ Deterministic evaluations for
 - Score instruction quality with IDD (Intent-Driven Development) analysis.
 - Measure consistency via pass@k (repeated runs with epochs).
 
-## Quickstart
-
-### Prerequisites
+## Prerequisites
 
 - Python 3.12+
 - Docker running
+- [Cortex Code CLI](https://docs.snowflake.com/en/user-guide/cortex-code/cortex-code)
+  installed (beta channel). Verify with: `cortex exec --help`
 - `~/.snowflake/connections.toml` with a JWT or PAT connection
-- Cortex CLI (beta channel): `cortex exec --help` should work
 
-### Install the package
-
-```bash
-uv add git+https://github.com/kameshsampath/inspect-coco.git
-```
+## Quickstart
 
 ### Install the CoCo plugin
 
@@ -153,6 +151,29 @@ inspect-coco scaffold             # generate the files
 This reads `.cortex-plugin/plugin.json`, detects leaf skills (skips routers),
 and generates IDD-structured eval tasks for each skill.
 
+## Build locally
+
+```bash
+# Clone the repository
+git clone https://github.com/kameshsampath/inspect-coco.git
+cd inspect-coco
+
+# Install with uv (editable mode)
+uv sync
+
+# Run tests
+uv run pytest tests/ --ignore=tests/integration
+
+# Use the CLI
+uv run inspect-coco --help
+```
+
+Or install as a dependency in another project:
+
+```bash
+uv add git+https://github.com/kameshsampath/inspect-coco.git
+```
+
 ## Project structure
 
 ```
@@ -185,10 +206,6 @@ src/inspect_coco/
 - [Intent-Driven Development: The Shift Developers Can't Ignore](https://blogs.kameshs.dev/intent-driven-development-the-shift-developers-cant-ignore-ef434f94d56c)
 - [Intent Compression Ratio: Measuring the Power of Intent](https://blogs.kameshs.dev/intent-compression-ratio-measuring-the-power-of-intent-ceb6faf2e2f9)
 - [ICR and Token Economics](https://blogs.kameshs.dev/icr-and-token-economics-9a014a75b399)
-
-## Status
-
-Early development. API may change. Not yet on PyPI.
 
 ## License
 
