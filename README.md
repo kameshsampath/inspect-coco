@@ -103,14 +103,20 @@ flowchart TB
     G --> H["pass@k metric"]
 ```
 
-1. **IDD pre-check.** Scores your instruction for
-   Goal, Requirements, Constraints, and Output sections.
-2. **Sandbox execution.** Runs `cortex exec` inside Docker with your
-   Snowflake credentials deployed securely.
-3. **Deterministic scoring.** `test.sh` (or pytest) verifies the
-   agent output. Exit 0 means pass.
-4. **Consistency.** Repeats across epochs for a pass@k reliability
-   metric.
+Agents are non-deterministic. The same vague prompt produces different
+outputs on every run. IDD structure narrows what the agent can
+reasonably do, which directly improves pass@k consistency:
+
+1. **IDD pre-check** gates execution. A clear Goal fixes the target,
+   Constraints close divergent paths, and concrete Output criteria make
+   scoring binary. Vague instructions get flagged before they waste
+   compute.
+2. **Sandbox execution** runs `cortex exec` inside Docker with your
+   Snowflake credentials deployed securely. Same environment every time.
+3. **Deterministic scoring** via `test.sh` (or pytest) checks facts,
+   not style. Exit 0 means pass.
+4. **Epochs** repeat the run N times. A well-structured IDD instruction
+   passes consistently; a vague one does not.
 
 ## Viewing results
 
