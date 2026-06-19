@@ -132,5 +132,5 @@ idd_strict = false    # true = fail instead of warn
 Or via CLI:
 
 ```bash
-inspect eval my-task/ -T idd_threshold=0.8 -T idd_strict=true
+inspect-coco run my-task/ --epochs 3
 ```

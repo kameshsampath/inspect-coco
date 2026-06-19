@@ -8,7 +8,7 @@ inspect-coco runs CoCo (Cortex Code) as an opaque agent inside Docker
 containers, then scores the results with deterministic tests.
 
 ```
-inspect eval → IDD pre-check → Docker sandbox → cortex exec → test.sh → Score
+inspect-coco run → IDD pre-check → Docker sandbox → cortex exec → test.sh → Score
 ```
 
 ## Components
