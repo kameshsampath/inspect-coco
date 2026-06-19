@@ -3,6 +3,14 @@
 A `suite.yaml` groups multiple eval tasks under a shared configuration.
 Use suites to organize evaluations per-skill with consistent defaults.
 
+!!! tip "Editor autocomplete"
+
+    Add this comment to the top of your suite.yaml for IDE validation and autocomplete:
+
+    ```yaml
+    # yaml-language-server: $schema=https://raw.githubusercontent.com/kameshsampath/inspect-coco/main/schemas/suite.schema.json
+    ```
+
 ## File Location
 
 Place `suite.yaml` at the root of your eval directory:
@@ -56,6 +64,31 @@ exclude:
 When `tasks: auto` (the default), the suite loader searches recursively for
 subdirectories containing `task.toml`. Directories matching `exclude` patterns
 are skipped.
+
+## Glob Patterns
+
+Explicit task lists support fnmatch patterns to match multiple directories at once:
+
+```yaml title="suite.yaml"
+tasks:
+  - "basic-*"           # matches basic-prompt, basic-edge, etc.
+  - path: "edge-*"
+    epochs: 5           # override applied to all matched tasks
+```
+
+Patterns use Python's `fnmatch` syntax:
+
+| Pattern | Matches |
+|---------|---------|
+| `*` | Everything |
+| `basic-*` | basic-prompt, basic-edge, basic-foo |
+| `test-?` | test-a, test-b (single character) |
+| `[abc]-*` | a-task, b-task, c-task |
+
+!!! note
+
+    Patterns are matched against the relative path from the suite root.
+    The `exclude` list is applied before pattern matching.
 
 ## Merge Priority
 

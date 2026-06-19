@@ -1,0 +1,159 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://github.com/kameshsampath/inspect-coco/schemas/suite.schema.json",
+    "title": "inspect-coco suite.yaml",
+    "description": "Schema for inspect-coco eval suite configuration files.",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "Human-readable name for the suite."
+        },
+        "description": {
+            "type": "string",
+            "description": "Brief description of what this suite evaluates."
+        },
+        "skill": {
+            "type": [
+                "string",
+                "null"
+            ],
+            "description": "Optional CoCo skill name this suite is tied to."
+        },
+        "defaults": {
+            "type": "object",
+            "description": "Shared default configuration for all tasks in this suite.",
+            "properties": {
+                "epochs": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 3,
+                    "description": "Number of repetitions for pass@k consistency measurement."
+                },
+                "timeout_sec": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 900,
+                    "description": "Agent timeout in seconds."
+                },
+                "max_turns": {
+                    "type": [
+                        "integer",
+                        "null"
+                    ],
+                    "minimum": 1,
+                    "description": "Maximum agent conversation turns."
+                },
+                "idd_threshold": {
+                    "type": "number",
+                    "minimum": 0.0,
+                    "maximum": 1.0,
+                    "default": 0.6,
+                    "description": "Minimum IDD score before warning or failing."
+                },
+                "idd_strict": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If true, fail (not just warn) when IDD score is below threshold."
+                },
+                "model": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "description": "Override CoCo model for all tasks."
+                },
+                "connection": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "description": "Override Snowflake connection name for all tasks."
+                }
+            },
+            "additionalProperties": false
+        },
+        "tasks": {
+            "oneOf": [
+                {
+                    "type": "string",
+                    "enum": [
+                        "auto"
+                    ],
+                    "description": "Auto-discover subdirectories containing task.toml."
+                },
+                {
+                    "type": "array",
+                    "description": "Explicit list of task paths or patterns with optional overrides.",
+                    "items": {
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "description": "Task directory name or fnmatch pattern (e.g., 'basic-*')."
+                            },
+                            {
+                                "type": "object",
+                                "required": [
+                                    "path"
+                                ],
+                                "properties": {
+                                    "path": {
+                                        "type": "string",
+                                        "description": "Task directory name or fnmatch pattern."
+                                    },
+                                    "epochs": {
+                                        "type": "integer",
+                                        "minimum": 1
+                                    },
+                                    "timeout_sec": {
+                                        "type": "integer",
+                                        "minimum": 1
+                                    },
+                                    "max_turns": {
+                                        "type": [
+                                            "integer",
+                                            "null"
+                                        ],
+                                        "minimum": 1
+                                    },
+                                    "idd_threshold": {
+                                        "type": "number",
+                                        "minimum": 0.0,
+                                        "maximum": 1.0
+                                    },
+                                    "idd_strict": {
+                                        "type": "boolean"
+                                    },
+                                    "model": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "connection": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "exclude": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "description": "Directory prefixes to exclude from auto-discovery or pattern matching."
+        }
+    },
+    "required": [
+        "name"
+    ],
+    "additionalProperties": false
+}

@@ -26,9 +26,19 @@ theme:
           toggle:
               icon: material/brightness-4
               name: Switch to light mode
-    font: false
     icon:
         repo: fontawesome/brands/github
+        admonition:
+            note: octicons/info-16
+            tip: octicons/light-bulb-16
+            warning: octicons/alert-16
+            danger: octicons/zap-16
+            example: octicons/beaker-16
+            info: octicons/info-16
+            question: octicons/question-16
+            success: octicons/check-16
+            failure: octicons/x-16
+            important: octicons/alert-16
     features:
         - content.code.copy
         - content.code.select
@@ -59,6 +69,7 @@ nav:
           - IDD Scoring: idd-scoring.md
           - Metrics and Reporting: metrics.md
     - CLI Reference: cli.md
+    - References: references.md
     - API Reference:
           - api/index.md
           - Task Loader: api/tasks.md

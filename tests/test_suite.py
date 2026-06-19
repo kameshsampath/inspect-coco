@@ -173,3 +173,75 @@ def test_merge_defaults_task_epochs_override(suite_dir: Path) -> None:
 
     # task.toml specifies epochs=10, overriding suite default of 5
     assert merged["epochs"] == 10
+
+
+# --- Glob pattern tests ---
+
+
+@pytest.fixture
+def glob_suite_dir(tmp_path: Path) -> Path:
+    """Create a suite with tasks matching glob patterns."""
+    suite = tmp_path / "glob-suite"
+    suite.mkdir()
+
+    (suite / "suite.yaml").write_text(
+        """
+name: glob-suite
+description: Tests glob patterns
+
+tasks:
+  - "basic-*"
+  - path: "edge-*"
+    epochs: 7
+
+exclude:
+  - drafts
+"""
+    )
+
+    for name in ("basic-a", "basic-b", "edge-case", "edge-regression", "other", "drafts"):
+        d = suite / name
+        d.mkdir()
+        (d / "task.toml").write_text(f'[metadata]\nname = "{name}"\n')
+
+    return suite
+
+
+def test_glob_pattern_matches(glob_suite_dir: Path) -> None:
+    suite = load_suite(glob_suite_dir)
+    task_names = [t.path.name for t in suite.tasks]
+
+    assert "basic-a" in task_names
+    assert "basic-b" in task_names
+    assert "other" not in task_names
+
+
+def test_glob_pattern_with_overrides(glob_suite_dir: Path) -> None:
+    suite = load_suite(glob_suite_dir)
+
+    edge_tasks = [t for t in suite.tasks if t.path.name.startswith("edge-")]
+    assert len(edge_tasks) == 2
+    for t in edge_tasks:
+        assert t.overrides == {"epochs": 7}
+
+
+def test_glob_respects_exclude(glob_suite_dir: Path) -> None:
+    suite = load_suite(glob_suite_dir)
+    task_names = [t.path.name for t in suite.tasks]
+    assert "drafts" not in task_names
+
+
+def test_glob_no_match_warns(tmp_path: Path, caplog) -> None:
+    suite = tmp_path / "empty"
+    suite.mkdir()
+
+    (suite / "suite.yaml").write_text(
+        """
+name: no-match
+tasks:
+  - "nonexist-*"
+"""
+    )
+
+    load_suite(suite)
+    assert "No tasks matched pattern" in caplog.text
