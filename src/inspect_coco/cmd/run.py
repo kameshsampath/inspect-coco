@@ -137,7 +137,17 @@ def _invoke_inspect_eval(
         click.echo(f"  SKIP {task_dir.name} (no task.py)", err=True)
         return 0
 
-    cmd = ["inspect", "eval", str(task_py)]
+    # Inspect expects a relative path from cwd (uses it as a glob pattern)
+    try:
+        rel_path = task_py.resolve().relative_to(Path.cwd())
+    except ValueError:
+        # task_py is outside cwd — use absolute but run from its parent
+        rel_path = Path("task.py")
+        run_cwd: str | None = str(task_dir.resolve())
+    else:
+        run_cwd = None
+
+    cmd = ["inspect", "eval", str(rel_path)]
 
     # Pass configuration as -T params
     if config.get("epochs"):
@@ -159,5 +169,5 @@ def _invoke_inspect_eval(
         click.echo(f"    {' '.join(cmd)}")
         return 0
 
-    result = subprocess.run(cmd, cwd=str(task_dir))
+    result = subprocess.run(cmd, cwd=run_cwd)
     return result.returncode
