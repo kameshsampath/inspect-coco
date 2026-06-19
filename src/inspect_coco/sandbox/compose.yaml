@@ -1,0 +1,10 @@
+services:
+  default:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    init: true
+    command: ["tail", "-f", "/dev/null"]
+    env_file:
+      - path: .env
+        required: false
