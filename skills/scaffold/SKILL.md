@@ -35,6 +35,20 @@ Verify the following are available:
 
 If any prerequisite is missing, explain what's needed and how to fix it.
 
+**Connection check:** Read `~/.snowflake/connections.toml` (honour `SNOWFLAKE_HOME`
+env var). If there is no `[default]` section AND `SNOWFLAKE_CONNECTION_NAME` is not
+set in the environment or `.env` file, ask the user which connection to use:
+
+```
+ask_user_question:
+  header: "Connection"
+  question: "No default connection found. Which connection should evals use?"
+  type: "options"
+  options: <list section names from connections.toml that use JWT or PAT>
+```
+
+Use the selected connection name in the generated `.env` file.
+
 ### Step 2: Install inspect-coco
 
 ```bash
@@ -95,11 +109,12 @@ The `instruction.md` is generated using the IDD template:
 
 ### Step 5: Generate .env
 
-Create a `.env` file with sane defaults:
+Create a `.env` file with sane defaults. Use the connection name from Step 1
+(either `default` if it exists, or the user's selection):
 ```
 INSPECT_COCO_CHANNEL=beta
 # INSPECT_COCO_MODEL=
-SNOWFLAKE_CONNECTION_NAME=default
+SNOWFLAKE_CONNECTION_NAME=<selected-connection>
 ```
 
 ### Step 6: Verify

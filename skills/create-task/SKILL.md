@@ -25,7 +25,19 @@ Before generating files, ask:
 
 ### Step 1: Gather Intent
 
-Ask the user:
+First, check `~/.snowflake/connections.toml` (honour `SNOWFLAKE_HOME` env var).
+If there is no `[default]` section AND `SNOWFLAKE_CONNECTION_NAME` is not set in
+the environment or `.env` file, ask which connection to use:
+
+```
+ask_user_question:
+  header: "Connection"
+  question: "No default connection found. Which connection should this eval use?"
+  type: "options"
+  options: <list section names from connections.toml that use JWT or PAT>
+```
+
+Then ask the user:
 
 ```
 ask_user_question:
