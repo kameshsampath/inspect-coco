@@ -1,0 +1,20 @@
+# inspect-coco examples suite
+#
+# This suite groups all example tasks with shared defaults.
+# Run with: inspect-coco run examples/
+
+name: examples
+description: Example eval tasks demonstrating inspect-coco features
+skill: null # examples are not tied to a specific CoCo skill
+
+defaults:
+    epochs: 1 # single epoch for quick demo runs
+    timeout_sec: 300 # shorter timeout for examples
+    idd_threshold: 0.6
+    idd_strict: false
+
+# Auto-discover all subdirectories with task.toml
+tasks: auto
+
+exclude:
+    - low-idd-score # intentionally below threshold for demo purposes

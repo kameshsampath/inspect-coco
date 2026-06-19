@@ -56,14 +56,35 @@ Check for `.inspectignore` in the project root. Apply default exclusions:
 
 ### Step 4: Generate Eval Tasks
 
-For each non-ignored leaf skill, create an atomic eval task:
+For each non-ignored leaf skill, create an eval suite with auto-discovered tasks:
 
 ```
 evals/<skill-name>/
-├── task.toml          # Config: timeout, epochs, idd_threshold
-├── instruction.md     # IDD-structured prompt derived from skill triggers
-└── tests/
-    └── test.sh        # Verification script
+├── suite.yaml         # Suite config with shared defaults
+├── basic-prompt/
+│   ├── task.toml      # Config: timeout, epochs, idd_threshold
+│   ├── instruction.md # IDD-structured prompt derived from skill triggers
+│   └── tests/
+│       └── test.sh    # Verification script
+└── edge-case/         # Additional scenarios (optional)
+    ├── task.toml
+    ├── instruction.md
+    └── tests/
+        └── test.sh
+```
+
+Generate `suite.yaml` per leaf skill:
+```yaml
+name: <skill-name>-evals
+description: Eval scenarios for <skill-name>
+skill: <skill-name>
+
+defaults:
+  epochs: 3
+  timeout_sec: 900
+  idd_threshold: 0.6
+
+tasks: auto
 ```
 
 The `instruction.md` is generated using the IDD template:
@@ -85,10 +106,15 @@ SNOWFLAKE_CONNECTION_NAME=default
 
 Run IDD scorer on all generated instructions:
 ```bash
-uv run python -c "from inspect_coco.idd import score_instruction; ..."
+inspect-coco idd-check evals/
 ```
 
-Report: "Generated N eval tasks. IDD scores: min=X, avg=Y, max=Z"
+Report: "Generated N eval tasks across M suites. IDD scores: min=X, avg=Y, max=Z"
+
+Dry-run to confirm suite wiring:
+```bash
+inspect-coco run evals/ --dry-run
+```
 
 ## References
 

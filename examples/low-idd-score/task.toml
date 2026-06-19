@@ -1,0 +1,8 @@
+version = "1.0"
+
+[metadata]
+name = "low-idd-score"
+description = "Deliberately vague instruction to demonstrate IDD scoring feedback"
+epochs = 1
+# Set low threshold so it still runs (for demonstration)
+idd_threshold = 0.2

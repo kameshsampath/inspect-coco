@@ -58,6 +58,8 @@ inspect eval examples/*/task.py
 | `hello-world` | Basic file creation | 1.0 |
 | `fix-syntax-errors` | Code repair (uses starter/ files) | 1.0 |
 | `custom-compose` | Custom Docker env with environment variables | 1.0 |
+| `test-suite` | Pytest with multiple test functions | 1.0 |
+| `low-idd-score` | What happens with a vague instruction (IDD warning demo) | 0.25 |
 
 ## Task Structure
 
@@ -69,10 +71,18 @@ example-name/
 ├── task.toml          # Config: timeout, epochs, IDD threshold
 ├── instruction.md     # Agent prompt (IDD-structured)
 ├── tests/
-│   └── test.sh        # Verification (exit 0 = pass)
+│   ├── test.sh        # Bash verification (exit 0 = pass)
+│   └── test_*.py      # Or pytest tests (see test-suite example)
 ├── starter/           # Optional: files copied to /workspace before agent runs
 └── compose.yaml       # Optional: custom Docker Compose (overrides builtin)
 ```
+
+> [!TIP]
+> Use `[environment].test_cmd` in task.toml to run pytest directly:
+> ```toml
+> [environment]
+> test_cmd = "pytest /workspace/tests/ -v"
+> ```
 
 ## Writing Your Own
 

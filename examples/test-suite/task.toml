@@ -1,0 +1,16 @@
+version = "1.0"
+
+[metadata]
+name = "test-suite"
+description = "Multi-test example using pytest with multiple assertions"
+epochs = 3
+idd_threshold = 0.6
+
+[agent]
+timeout_sec = 600
+max_turns = 15
+
+[environment]
+# Use pytest instead of a bash script
+test_cmd = "pytest /workspace/tests/test_mathlib.py -v"
+test_timeout = 60

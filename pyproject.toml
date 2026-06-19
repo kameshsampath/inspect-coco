@@ -7,11 +7,16 @@ requires-python = ">=3.12"
 authors = [{ name = "Kamesh Sampath", email = "kamesh.sampath@snowflake.com" }]
 readme = "README.md"
 dependencies = [
+    "click>=8.0",
     "inspect-ai>=0.3.100",
     "pydantic>=2.0",
     "python-dotenv>=1.0",
+    "pyyaml>=6.0",
     "toml>=0.10",
 ]
+
+[project.scripts]
+inspect-coco = "inspect_coco.cli:main"
 
 [project.entry-points.inspect_ai]
 inspect_coco = "inspect_coco._registry"
