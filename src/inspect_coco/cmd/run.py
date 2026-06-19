@@ -151,13 +151,17 @@ def _eval_task(
         return True
 
     # Build the Task object directly (no task.py needed)
-    task_obj = coco_task(
-        task_dir=str(task_dir),
-        timeout_sec=config.get("timeout_sec", 900),
-        epochs=config.get("epochs"),
-        idd_threshold=config.get("idd_threshold"),
-        idd_strict=config.get("idd_strict", False),
-    )
+    task_kwargs: dict = {"task_dir": str(task_dir)}
+    if config.get("timeout_sec"):
+        task_kwargs["timeout_sec"] = config["timeout_sec"]
+    if config.get("epochs"):
+        task_kwargs["epochs"] = config["epochs"]
+    if config.get("idd_threshold"):
+        task_kwargs["idd_threshold"] = config["idd_threshold"]
+    if config.get("idd_strict"):
+        task_kwargs["idd_strict"] = config["idd_strict"]
+
+    task_obj = coco_task(**task_kwargs)
 
     # Call Inspect's eval() API in-process
     eval_kwargs: dict = {}

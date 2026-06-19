@@ -106,10 +106,11 @@ Epochs control how many times the same task runs. This measures pass@k:
 Example: if a task passes 2 out of 3 epochs, the pass rate is 66%.
 A well-written instruction (high IDD score) should pass all epochs consistently.
 
-> [!IMPORTANT]
-> Higher epochs mean longer total run time. Each epoch runs the full
-> agent + test cycle. A 900s timeout task with 5 epochs could take up
-> to 75 minutes.
+!!! important
+
+    Higher epochs mean longer total run time. Each epoch runs the full
+    agent + test cycle. A 900s timeout task with 5 epochs could take up
+    to 75 minutes.
 
 ## File Structure
 
@@ -140,5 +141,6 @@ services:
       - MY_CUSTOM_VAR=some-value
 ```
 
-> [!NOTE]
-> The service must be named `default`. Inspect uses this name to find the primary sandbox.
+!!! note
+
+    The service must be named `default`. Inspect uses this name to find the primary sandbox.

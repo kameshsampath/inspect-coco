@@ -1,0 +1,13 @@
+/* inspect-coco docs — community theme (indigo/teal) */
+[data-md-color-primary="custom"] {
+    --md-primary-fg-color: #5c6bc0;
+    --md-primary-fg-color--light: #8e99d4;
+    --md-primary-fg-color--dark: #3949ab;
+    --md-primary-bg-color: #ffffff;
+    --md-primary-bg-color--light: #ffffff;
+}
+
+[data-md-color-scheme="slate"][data-md-color-primary="custom"] {
+    --md-primary-fg-color: #7c8cd6;
+    --md-primary-bg-color: #0d1117;
+}

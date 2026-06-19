@@ -6,6 +6,7 @@ Each skill's eval directory gets its own suite.yaml.
 
 from __future__ import annotations
 
+import fnmatch
 import logging
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -204,25 +205,56 @@ def _auto_discover_tasks(root: Path, exclude: list[str]) -> list[TaskEntry]:
 def _parse_explicit_tasks(
     root: Path, tasks_config: list[dict], exclude: list[str]
 ) -> list[TaskEntry]:
-    """Parse explicit task list from suite.yaml."""
+    """Parse explicit task list from suite.yaml.
+
+    Supports both literal paths and fnmatch patterns (e.g., 'basic-*').
+    Patterns are matched against all task directories found under root.
+    """
     tasks = []
     for entry in tasks_config:
         if isinstance(entry, str):
-            path = root / entry
+            pattern = entry
             overrides = {}
         elif isinstance(entry, dict):
-            path = root / entry["path"]
+            pattern = entry["path"]
             overrides = {k: v for k, v in entry.items() if k != "path"}
         else:
             continue
 
-        rel_path = str(path.relative_to(root))
-        if any(rel_path.startswith(exc.rstrip("/")) for exc in exclude):
-            continue
-
-        if path.exists():
-            tasks.append(TaskEntry(path=path, overrides=overrides))
+        if _has_glob_chars(pattern):
+            matched = _match_pattern(root, pattern, exclude)
+            for task_dir in matched:
+                tasks.append(TaskEntry(path=task_dir, overrides=overrides.copy()))
+            if not matched:
+                logger.warning("No tasks matched pattern '%s' in %s", pattern, root)
         else:
-            logger.warning("Task path not found: %s", path)
+            path = root / pattern
+            rel_path = str(path.relative_to(root))
+            if any(rel_path.startswith(exc.rstrip("/")) for exc in exclude):
+                continue
+            if path.exists():
+                tasks.append(TaskEntry(path=path, overrides=overrides))
+            else:
+                logger.warning("Task path not found: %s", path)
 
     return tasks
+
+
+def _has_glob_chars(s: str) -> bool:
+    """Check if a string contains fnmatch glob metacharacters."""
+    return any(c in s for c in ("*", "?", "["))
+
+
+def _match_pattern(root: Path, pattern: str, exclude: list[str]) -> list[Path]:
+    """Match an fnmatch pattern against all task directories under root."""
+    matched = []
+    for task_toml in sorted(root.rglob("task.toml")):
+        task_dir = task_toml.parent
+        if task_dir == root:
+            continue
+        rel_path = str(task_dir.relative_to(root))
+        if any(rel_path.startswith(exc.rstrip("/")) for exc in exclude):
+            continue
+        if fnmatch.fnmatch(rel_path, pattern):
+            matched.append(task_dir)
+    return matched

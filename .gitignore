@@ -49,3 +49,6 @@ logs/
 
 # Working notes (local only)
 work/
+
+# Docs build output
+site/
