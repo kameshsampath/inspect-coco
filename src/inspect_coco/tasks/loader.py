@@ -61,7 +61,10 @@ def coco_task(
     # IDD pre-check
     threshold = idd_threshold or metadata.get("idd_threshold", DEFAULT_IDD_THRESHOLD)
     strict = idd_strict or metadata.get("idd_strict", False)
-    _run_idd_check(instruction, threshold, strict, task_path.name)
+    idd_metadata = _run_idd_check(instruction, threshold, strict, task_path.name)
+
+    # Merge IDD scores into task metadata (persisted in eval log)
+    metadata = {**metadata, **idd_metadata}
 
     # Resolve epochs (auto-epochs for consistency measurement)
     resolved_epochs = epochs or metadata.get("epochs", DEFAULT_EPOCHS)
@@ -115,8 +118,8 @@ def _load_instruction(task_path: Path) -> str:
     return instruction_path.read_text()
 
 
-def _run_idd_check(instruction: str, threshold: float, strict: bool, task_name: str) -> None:
-    """Run IDD pre-check on instruction and warn or fail."""
+def _run_idd_check(instruction: str, threshold: float, strict: bool, task_name: str) -> dict:
+    """Run IDD pre-check on instruction. Returns IDD metadata for the eval log."""
     idd_score = score_instruction(instruction)
     explanation = explain_score(idd_score, threshold=threshold)
 
@@ -141,6 +144,19 @@ def _run_idd_check(instruction: str, threshold: float, strict: bool, task_name: 
             idd_score.total,
             threshold,
         )
+
+    # Return IDD metadata to persist in eval log
+    return {
+        "idd_score": idd_score.total,
+        "idd_goal": idd_score.goal.score,
+        "idd_requirements": idd_score.requirements.score,
+        "idd_constraints": idd_score.constraints.score,
+        "idd_output": idd_score.output.score,
+        "idd_ambiguity_count": idd_score.ambiguity_count,
+        "idd_specificity": idd_score.specificity,
+        "idd_threshold": threshold,
+        "idd_passed": idd_score.total >= threshold,
+    }
 
 
 def _resolve_sandbox(task_path: Path, env_config: dict) -> tuple[str, str]:
