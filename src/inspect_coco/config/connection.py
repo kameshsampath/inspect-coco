@@ -56,7 +56,7 @@ def resolve_connection(connection_name: str | None = None) -> SnowflakeConnectio
 
     Resolution order for connection name:
         1. Explicit connection_name parameter
-        2. SNOWFLAKE_CONNECTION_NAME environment variable
+        2. INSPECT_COCO_SNOWFLAKE_CONNECTION environment variable
         3. default_connection_name field in TOML file
         4. Fallback to "default"
 
@@ -65,7 +65,7 @@ def resolve_connection(connection_name: str | None = None) -> SnowflakeConnectio
         2. config.toml (older format) — nested [connections.connection_name]
     """
     sf_home = snowflake_home()
-    name = connection_name or os.environ.get("SNOWFLAKE_CONNECTION_NAME", "")
+    name = connection_name or os.environ.get("INSPECT_COCO_SNOWFLAKE_CONNECTION", "")
 
     # Try connections.toml first (newer format)
     connections_path = sf_home / "connections.toml"
@@ -81,7 +81,7 @@ def resolve_connection(connection_name: str | None = None) -> SnowflakeConnectio
         raise ConnectionResolutionError(
             f"Connection '{resolved_name}' not found in {connections_path}.\n"
             f"Available connections: {', '.join(available)}\n"
-            f"Fix: set SNOWFLAKE_CONNECTION_NAME in your .env file to one of the above."
+            f"Fix: set INSPECT_COCO_SNOWFLAKE_CONNECTION in your .env file to one of the above."
         )
 
     # Fall back to config.toml (older format)
@@ -97,7 +97,7 @@ def resolve_connection(connection_name: str | None = None) -> SnowflakeConnectio
         raise ConnectionResolutionError(
             f"Connection '{resolved_name}' not found in {config_path}.\n"
             f"Available connections: {', '.join(available)}\n"
-            f"Fix: set SNOWFLAKE_CONNECTION_NAME in your .env file to one of the above."
+            f"Fix: set INSPECT_COCO_SNOWFLAKE_CONNECTION in your .env file to one of the above."
         )
 
     raise ConnectionResolutionError(

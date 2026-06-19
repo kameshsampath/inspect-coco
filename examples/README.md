@@ -17,10 +17,10 @@ Create a `.env` file in the project root with your connection name:
 cp .env.example .env
 ```
 
-Then set `SNOWFLAKE_CONNECTION_NAME` to one of your configured connections:
+Then set `INSPECT_COCO_SNOWFLAKE_CONNECTION` to one of your configured connections:
 
 ```dotenv
-SNOWFLAKE_CONNECTION_NAME=my-connection
+INSPECT_COCO_SNOWFLAKE_CONNECTION=my-connection
 ```
 
 > [!NOTE]
@@ -105,16 +105,6 @@ example-name/
 > test_cmd = "pytest /workspace/tests/ -v"
 > ```
 
-## Writing Your Own
-
-Use the `create-task` CoCo skill for guided creation:
-
-```text
-$inspect-coco:create-task
-```
-
-Or see [Writing Evals](../docs/writing-evals.md) for the manual approach.
-
 ## Running a Test Suite
 
 The recommended way to run all evals is via `suite.yaml`:
@@ -150,7 +140,7 @@ Eval results are saved as `.eval` log files in `logs/`. These are binary
 inspect view
 
 # View a specific log file
-inspect view logs/2026-06-19T08-25-18_hello-world_abc123.eval
+inspect view --log-dir logs
 
 # List recent eval logs
 inspect log list
@@ -168,3 +158,13 @@ The log viewer shows:
 - Full conversation transcript (messages, tool calls)
 - Token usage and timing
 - Scorer output (test.sh stdout/stderr)
+
+## Writing Your Own
+
+Use the `create-task` CoCo skill for guided creation:
+
+```text
+$inspect-coco:create-task
+```
+
+Or see [Writing Evals](../docs/writing-evals.md) for the manual approach.

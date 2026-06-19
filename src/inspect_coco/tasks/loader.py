@@ -180,16 +180,26 @@ def _build_dataset(instruction: str, task_path: Path) -> MemoryDataset:
     """Build dataset from instruction and optional starter files."""
     sample_kwargs: dict = {"input": instruction}
 
-    # Check for starter/ directory → Sample.files
+    files: dict[str, str] = {}
+
+    # Copy starter/ files into /workspace/
     starter_dir = task_path / "starter"
     if starter_dir.exists() and starter_dir.is_dir():
-        files: dict[str, str] = {}
         for f in starter_dir.rglob("*"):
             if f.is_file():
                 rel_path = f.relative_to(starter_dir)
                 files[f"/workspace/{rel_path}"] = str(f)
-        if files:
-            sample_kwargs["files"] = files
+
+    # Copy tests/ files into /workspace/tests/ (needed by scorer)
+    tests_dir = task_path / "tests"
+    if tests_dir.exists() and tests_dir.is_dir():
+        for f in tests_dir.rglob("*"):
+            if f.is_file():
+                rel_path = f.relative_to(tests_dir)
+                files[f"/workspace/tests/{rel_path}"] = str(f)
+
+    if files:
+        sample_kwargs["files"] = files
 
     return MemoryDataset([Sample(**sample_kwargs)])
 

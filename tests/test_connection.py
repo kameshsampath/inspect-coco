@@ -17,7 +17,7 @@ from inspect_coco.config.connection import (
 def sf_home(tmp_path, monkeypatch):
     """Set SNOWFLAKE_HOME to a temp directory."""
     monkeypatch.setenv("SNOWFLAKE_HOME", str(tmp_path))
-    monkeypatch.delenv("SNOWFLAKE_CONNECTION_NAME", raising=False)
+    monkeypatch.delenv("INSPECT_COCO_SNOWFLAKE_CONNECTION", raising=False)
     return tmp_path
 
 
@@ -72,7 +72,7 @@ private_key_path = "/prod/key.p8"
         assert config.user == "produser"
 
     def test_connection_name_from_env(self, sf_home: Path, monkeypatch):
-        monkeypatch.setenv("SNOWFLAKE_CONNECTION_NAME", "staging")
+        monkeypatch.setenv("INSPECT_COCO_SNOWFLAKE_CONNECTION", "staging")
         (sf_home / "connections.toml").write_text("""
 [staging]
 account = "stg-account"

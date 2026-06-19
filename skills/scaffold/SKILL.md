@@ -36,7 +36,7 @@ Verify the following are available:
 If any prerequisite is missing, explain what's needed and how to fix it.
 
 **Connection check:** Read `~/.snowflake/connections.toml` (honour `SNOWFLAKE_HOME`
-env var). If there is no `[default]` section AND `SNOWFLAKE_CONNECTION_NAME` is not
+env var). If there is no `[default]` section AND `INSPECT_COCO_SNOWFLAKE_CONNECTION` is not
 set in the environment or `.env` file, ask the user which connection to use:
 
 ```
@@ -114,7 +114,7 @@ Create a `.env` file with sane defaults. Use the connection name from Step 1
 ```
 INSPECT_COCO_CHANNEL=beta
 # INSPECT_COCO_MODEL=
-SNOWFLAKE_CONNECTION_NAME=<selected-connection>
+INSPECT_COCO_SNOWFLAKE_CONNECTION=<selected-connection>
 ```
 
 ### Step 6: Verify

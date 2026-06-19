@@ -27,7 +27,7 @@ uv add git+https://github.com/kameshsampath/inspect-coco.git
 
 ```bash
 cp .env.example .env
-# Set SNOWFLAKE_CONNECTION_NAME to your connection
+# Set INSPECT_COCO_SNOWFLAKE_CONNECTION to your connection
 # (run: grep "^\[" ~/.snowflake/connections.toml to see options)
 ```
 

@@ -26,7 +26,7 @@ Before generating files, ask:
 ### Step 1: Gather Intent
 
 First, check `~/.snowflake/connections.toml` (honour `SNOWFLAKE_HOME` env var).
-If there is no `[default]` section AND `SNOWFLAKE_CONNECTION_NAME` is not set in
+If there is no `[default]` section AND `INSPECT_COCO_SNOWFLAKE_CONNECTION` is not set in
 the environment or `.env` file, ask which connection to use:
 
 ```
