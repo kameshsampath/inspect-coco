@@ -25,6 +25,7 @@ uv.lock
 # Environment
 .env
 .env.local
+!.env.example
 
 # Testing
 .pytest_cache/

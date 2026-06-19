@@ -9,6 +9,7 @@ readme = "README.md"
 dependencies = [
     "inspect-ai>=0.3.100",
     "pydantic>=2.0",
+    "python-dotenv>=1.0",
     "toml>=0.10",
 ]
 

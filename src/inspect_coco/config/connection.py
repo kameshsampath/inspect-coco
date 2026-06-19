@@ -7,6 +7,11 @@ import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+# Load .env file if present (does not override existing env vars)
+load_dotenv()
+
 
 @dataclass(frozen=True)
 class SnowflakeConnectionConfig:
