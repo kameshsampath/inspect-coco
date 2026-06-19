@@ -1,4 +1,4 @@
-"""Tests for scorers."""
+"""Tests for verification scorer."""
 
 from __future__ import annotations
 
@@ -6,15 +6,14 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from inspect_coco.scorers.pytest_scorer import pytest_scorer
+from inspect_coco.scorers.verification import passed, total, verification
 
 
-class TestPytestScorer:
+class TestVerificationScorer:
     @pytest.mark.asyncio
     async def test_passing_test(self):
-        scorer_fn = pytest_scorer(test_cmd="echo pass")
+        scorer_fn = verification(test_cmd="echo pass")
 
-        # Mock sandbox exec
         mock_result = MagicMock()
         mock_result.returncode = 0
         mock_result.stdout = "3 passed in 0.5s"
@@ -26,7 +25,7 @@ class TestPytestScorer:
 
         mock_target = MagicMock()
 
-        with patch("inspect_coco.scorers.pytest_scorer.sandbox") as mock_sandbox:
+        with patch("inspect_coco.scorers.verification.sandbox") as mock_sandbox:
             mock_sandbox.return_value.exec = AsyncMock(return_value=mock_result)
             score = await scorer_fn(mock_state, mock_target)
 
@@ -35,7 +34,7 @@ class TestPytestScorer:
 
     @pytest.mark.asyncio
     async def test_failing_test(self):
-        scorer_fn = pytest_scorer(test_cmd="pytest /workspace/tests")
+        scorer_fn = verification(test_cmd="pytest /workspace/tests")
 
         mock_result = MagicMock()
         mock_result.returncode = 1
@@ -48,7 +47,7 @@ class TestPytestScorer:
 
         mock_target = MagicMock()
 
-        with patch("inspect_coco.scorers.pytest_scorer.sandbox") as mock_sandbox:
+        with patch("inspect_coco.scorers.verification.sandbox") as mock_sandbox:
             mock_sandbox.return_value.exec = AsyncMock(return_value=mock_result)
             score = await scorer_fn(mock_state, mock_target)
 
@@ -58,7 +57,7 @@ class TestPytestScorer:
 
     @pytest.mark.asyncio
     async def test_custom_test_cmd(self):
-        scorer_fn = pytest_scorer(test_cmd="bash /custom/verify.sh", timeout=60)
+        scorer_fn = verification(test_cmd="bash /custom/verify.sh", timeout=60)
 
         mock_result = MagicMock()
         mock_result.returncode = 0
@@ -71,13 +70,40 @@ class TestPytestScorer:
 
         mock_target = MagicMock()
 
-        with patch("inspect_coco.scorers.pytest_scorer.sandbox") as mock_sandbox:
+        with patch("inspect_coco.scorers.verification.sandbox") as mock_sandbox:
             mock_sandbox.return_value.exec = AsyncMock(return_value=mock_result)
             score = await scorer_fn(mock_state, mock_target)
 
-            # Verify correct command was used
             call_args = mock_sandbox.return_value.exec.call_args
             assert "bash /custom/verify.sh" in call_args.kwargs["cmd"][2]
             assert call_args.kwargs["timeout"] == 60
 
         assert score.value == 1.0
+
+
+class TestMetrics:
+    def test_passed_metric(self):
+        metric_fn = passed()
+        scores = [
+            MagicMock(value=1.0),
+            MagicMock(value=0.0),
+            MagicMock(value=1.0),
+        ]
+        assert metric_fn(scores) == 2
+
+    def test_total_metric(self):
+        metric_fn = total()
+        scores = [
+            MagicMock(value=1.0),
+            MagicMock(value=0.0),
+            MagicMock(value=1.0),
+        ]
+        assert metric_fn(scores) == 3
+
+    def test_passed_empty(self):
+        metric_fn = passed()
+        assert metric_fn([]) == 0
+
+    def test_total_empty(self):
+        metric_fn = total()
+        assert metric_fn([]) == 0

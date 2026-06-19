@@ -19,7 +19,8 @@ inspect eval → IDD pre-check → Docker sandbox → cortex exec → test.sh �
 | Credential resolver | `src/inspect_coco/config/connection.py` | Reads ~/.snowflake TOML files |
 | Credential deployer | `src/inspect_coco/config/deployer.py` | Mounts keys + config into Docker |
 | Trajectory parser | `src/inspect_coco/trajectory/parser.py` | Parses cortex exec JSON output |
-| Scorer | `src/inspect_coco/scorers/pytest_scorer.py` | Runs test.sh, maps to pass/fail |
+| Scorer | `src/inspect_coco/scorers/verification.py` | Runs test command, maps to pass/fail |
+| IDD Scorer | `src/inspect_coco/scorers/idd_quality.py` | Reports IDD quality in eval summary |
 | IDD scorer | `src/inspect_coco/idd/scorer.py` | Scores instruction quality |
 | Task loader | `src/inspect_coco/tasks/loader.py` | Reads task.toml, wires everything |
 | Ignore patterns | `src/inspect_coco/ignores.py` | .inspectignore for scaffold |

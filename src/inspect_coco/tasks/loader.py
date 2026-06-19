@@ -12,7 +12,7 @@ from inspect_ai.dataset import MemoryDataset, Sample
 
 from inspect_coco.agents import coco
 from inspect_coco.idd import explain_score, score_instruction
-from inspect_coco.scorers import pytest_scorer
+from inspect_coco.scorers import idd_quality, verification
 
 logger = logging.getLogger(__name__)
 
@@ -87,14 +87,17 @@ def coco_task(
         )
     )
 
-    # Build scorer
+    # Build scorers
     test_cmd = _resolve_test_cmd(task_path, env_config)
-    scorer = pytest_scorer(test_cmd=test_cmd, timeout=env_config.get("test_timeout", 300))
+    scorers = [
+        verification(test_cmd=test_cmd, timeout=env_config.get("test_timeout", 300)),
+        idd_quality(instruction=instruction, threshold=threshold),
+    ]
 
     return Task(
         dataset=dataset,
         solver=agent_solver,
-        scorer=scorer,
+        scorer=scorers,
         sandbox=sandbox_spec,
         epochs=resolved_epochs,
         name=metadata.get("name", task_path.name),
@@ -201,7 +204,7 @@ def _build_dataset(instruction: str, task_path: Path) -> MemoryDataset:
     if files:
         sample_kwargs["files"] = files
 
-    return MemoryDataset([Sample(**sample_kwargs)])
+    return MemoryDataset([Sample(**sample_kwargs)], name=task_path.name)
 
 
 def _resolve_test_cmd(task_path: Path, env_config: dict) -> str:

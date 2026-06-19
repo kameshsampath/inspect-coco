@@ -49,7 +49,7 @@ warehouse = "COMPUTE_WH"
 ## Run Your First Eval
 
 ```bash
-inspect eval examples/hello-world/task.py
+inspect-coco run examples/hello-world
 ```
 
 This will:

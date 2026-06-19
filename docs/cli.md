@@ -147,7 +147,6 @@ inspect-coco scaffold --output-dir tests/evals
 evals/<skill-name>/
   suite.yaml                  # Suite config (auto-discovery, defaults)
   basic-prompt/
-    task.py                   # Inspect entry point
     task.toml                 # Config (timeout, epochs, IDD threshold)
     instruction.md            # IDD-structured instruction (Goal/Req/Con/Out)
     tests/

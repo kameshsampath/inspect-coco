@@ -111,7 +111,7 @@ See [task.toml reference](task-toml.md) for all options.
 ### Step 4: Run
 
 ```bash
-inspect eval my-eval/task.py
+inspect-coco run my-eval/
 ```
 
 ## Design Principles

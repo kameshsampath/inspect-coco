@@ -50,27 +50,9 @@ inspect-coco run examples/hello-world --epochs 5
 
 ### Using `inspect eval` directly
 
-```bash
-# Run a single example (point to the directory)
-inspect eval examples/hello-world
-
-# Run with specific model (default: CoCo auto mode)
-inspect eval examples/hello-world --model cortex/claude-sonnet-4-5
-
-# Run with more epochs for stronger consistency signal
-inspect eval examples/hello-world --epochs 5
-
-# Run multiple examples
-inspect eval examples/hello-world examples/fix-syntax-errors
-
-# Run all examples
-inspect eval examples/*/task.py
-```
-
 > [!NOTE]
-> Inspect discovers `task.py` in the directory automatically.
-> Both `inspect eval examples/hello-world` and
-> `inspect eval examples/hello-world/task.py` work.
+> With the removal of `task.py`, direct `inspect eval` usage is no longer
+> supported. Use `inspect-coco run` which calls Inspect's eval API in-process.
 
 ## Example Tasks
 
@@ -88,7 +70,6 @@ Each example follows the atomic eval pattern (one skill, one behavior):
 
 ```text
 example-name/
-├── task.py            # Inspect entry point (@task function)
 ├── task.toml          # Config: timeout, epochs, IDD threshold
 ├── instruction.md     # Agent prompt (IDD-structured)
 ├── tests/
@@ -114,20 +95,11 @@ The recommended way to run all evals is via `suite.yaml`:
 inspect-coco run examples/
 ```
 
-Or use `inspect eval` directly:
+Or run individual tasks:
 
 ```bash
-# Run specific examples
-inspect eval examples/hello-world examples/fix-syntax-errors examples/custom-compose
-
-# Or use a shell glob
-inspect eval examples/*/task.py
-```
-
-Inspect runs tasks concurrently by default. Use `--max-tasks` to control parallelism:
-
-```bash
-inspect eval examples/*/task.py --max-tasks 2
+inspect-coco run examples/hello-world
+inspect-coco run examples/fix-syntax-errors
 ```
 
 ## Viewing Results

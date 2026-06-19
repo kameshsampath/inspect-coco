@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 import logging
-import subprocess
 import sys
 from pathlib import Path
 
 import click
 
 from inspect_coco.suite import find_suites, load_suite, merge_defaults
+from inspect_coco.tasks.loader import coco_task
 
 logger = logging.getLogger(__name__)
 
@@ -95,8 +95,8 @@ def run(
             if connection is not None:
                 merged["connection"] = connection
 
-            exit_code = _invoke_inspect_eval(task_entry.path, merged, limit=limit, dry_run=dry_run)
-            if exit_code != 0:
+            success = _eval_task(task_entry.path, merged, limit=limit, dry_run=dry_run)
+            if not success:
                 failed += 1
 
     if failed:
@@ -114,7 +114,7 @@ def _run_single_task(
     limit: int | None = None,
     dry_run: bool = False,
 ) -> None:
-    """Run a single task directory through inspect eval."""
+    """Run a single task directory."""
     config: dict = {}
     if epochs is not None:
         config["epochs"] = epochs
@@ -123,51 +123,61 @@ def _run_single_task(
     if connection is not None:
         config["connection"] = connection
 
-    exit_code = _invoke_inspect_eval(task_dir, config, limit=limit, dry_run=dry_run)
-    if exit_code != 0:
-        sys.exit(exit_code)
+    success = _eval_task(task_dir, config, limit=limit, dry_run=dry_run)
+    if not success:
+        sys.exit(1)
 
 
-def _invoke_inspect_eval(
+def _eval_task(
     task_dir: Path, config: dict, limit: int | None = None, dry_run: bool = False
-) -> int:
-    """Build and invoke `inspect eval` command for a task."""
-    task_py = task_dir / "task.py"
-    if not task_py.exists():
-        click.echo(f"  SKIP {task_dir.name} (no task.py)", err=True)
-        return 0
+) -> bool:
+    """Build a Task and run it via inspect_ai.eval() in-process.
 
-    # Inspect expects a relative path from cwd (uses it as a glob pattern)
-    try:
-        rel_path = task_py.resolve().relative_to(Path.cwd())
-    except ValueError:
-        # task_py is outside cwd — use absolute but run from its parent
-        rel_path = Path("task.py")
-        run_cwd: str | None = str(task_dir.resolve())
-    else:
-        run_cwd = None
+    Returns True on success, False on failure.
+    """
+    from inspect_ai import eval as inspect_eval
 
-    cmd = ["inspect", "eval", str(rel_path)]
-
-    # Pass configuration as -T params
-    if config.get("epochs"):
-        cmd.extend(["-T", f"epochs={config['epochs']}"])
-    if config.get("timeout_sec"):
-        cmd.extend(["-T", f"timeout_sec={config['timeout_sec']}"])
-    if config.get("idd_threshold"):
-        cmd.extend(["-T", f"idd_threshold={config['idd_threshold']}"])
-    if config.get("idd_strict"):
-        cmd.extend(["-T", f"idd_strict={config['idd_strict']}"])
-
-    if limit is not None:
-        cmd.extend(["--limit", str(limit)])
+    if not (task_dir / "task.toml").exists():
+        click.echo(f"  SKIP {task_dir.name} (no task.toml)", err=True)
+        return True
 
     click.echo(f"  {'[DRY-RUN] ' if dry_run else ''}Running: {task_dir.name}")
-    logger.debug("Command: %s", " ".join(cmd))
 
     if dry_run:
-        click.echo(f"    {' '.join(cmd)}")
-        return 0
+        click.echo(f"    task_dir={task_dir}")
+        click.echo(f"    config={config}")
+        if limit:
+            click.echo(f"    limit={limit}")
+        return True
 
-    result = subprocess.run(cmd, cwd=run_cwd)
-    return result.returncode
+    # Build the Task object directly (no task.py needed)
+    task_obj = coco_task(
+        task_dir=str(task_dir),
+        timeout_sec=config.get("timeout_sec", 900),
+        epochs=config.get("epochs"),
+        idd_threshold=config.get("idd_threshold"),
+        idd_strict=config.get("idd_strict", False),
+    )
+
+    # Call Inspect's eval() API in-process
+    eval_kwargs: dict = {}
+    if limit is not None:
+        eval_kwargs["limit"] = limit
+
+    try:
+        logs = inspect_eval(
+            tasks=task_obj,
+            **eval_kwargs,
+        )
+    except Exception as e:
+        click.echo(f"  FAILED {task_dir.name}: {e}", err=True)
+        logger.exception("Eval failed for %s", task_dir.name)
+        return False
+
+    # Check results
+    for log in logs:
+        if log.status == "error":
+            click.echo(f"  FAILED {task_dir.name}: {log.error}", err=True)
+            return False
+
+    return True

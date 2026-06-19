@@ -142,7 +142,6 @@ my-task/
   task.toml         # Configuration: timeout, epochs, IDD threshold
   instruction.md    # Agent prompt (IDD-structured)
   tests/test.sh     # Verification script (exit 0 = pass)
-  task.py           # Inspect AI entry point
 ```
 
 The `instruction.md` follows the IDD template:

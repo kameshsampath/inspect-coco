@@ -186,9 +186,8 @@ class TestGenerateSuite:
         output_dir = tmp_path / "evals"
         files = generate_suite(skill, output_dir)
 
-        assert len(files) == 5
+        assert len(files) == 4
         assert (output_dir / "test-skill" / "suite.yaml").exists()
-        assert (output_dir / "test-skill" / "basic-prompt" / "task.py").exists()
         assert (output_dir / "test-skill" / "basic-prompt" / "task.toml").exists()
         assert (output_dir / "test-skill" / "basic-prompt" / "instruction.md").exists()
         assert (output_dir / "test-skill" / "basic-prompt" / "tests" / "test.sh").exists()
@@ -202,7 +201,7 @@ class TestGenerateSuite:
         output_dir = tmp_path / "evals"
         files = generate_suite(skill, output_dir, dry_run=True)
 
-        assert len(files) == 5
+        assert len(files) == 4
         assert not output_dir.exists()
 
     def test_suite_yaml_content(self, tmp_path: Path) -> None:
