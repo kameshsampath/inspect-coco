@@ -26,7 +26,7 @@ Deterministic evaluations for
 From within Cortex Code, run:
 
 ```text
-/install-plugin https://github.com/kameshsampath/inspect-coco
+cortex plugin https://github.com/kameshsampath/inspect-coco
 ```
 
 This registers the `inspect-coco` skills (`scaffold` and `create-task`)
@@ -71,6 +71,16 @@ context-aware scaffolding.
 The CLI provides the same functionality for scripts, CI pipelines,
 and terminal workflows.
 
+#### Install and use
+
+```shell
+# Install the package
+uv add git+https://github.com/kameshsampath/inspect-coco.git
+
+# Verify the CLI is available
+inspect-coco --help
+```
+
 | Command | What it does |
 |---------|-------------|
 | `inspect-coco scaffold` | Generate eval suites from plugin structure |
@@ -89,8 +99,8 @@ flowchart TB
     C --> E[cortex exec]
     E --> F[test.sh]
     F --> G{Score}
-    G -->|repeat N epochs| C
-    G --> H[pass@k metric]
+    G -->|"repeat N epochs"| C
+    G --> H["pass@k metric"]
 ```
 
 1. **IDD pre-check.** Scores your instruction for
