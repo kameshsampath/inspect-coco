@@ -112,6 +112,21 @@ flowchart TB
 4. **Consistency.** Repeats across epochs for a pass@k reliability
    metric.
 
+## Viewing results
+
+Eval results are saved as `.eval` files in the `logs/` directory.
+
+```shell
+# Open the web viewer (serves all logs)
+inspect view
+
+# List recent eval logs
+inspect log list
+
+# Dump a specific log as JSON
+inspect log dump logs/<log-file>.eval
+```
+
 ## Writing evals
 
 Each eval task is a directory:
