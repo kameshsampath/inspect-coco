@@ -132,21 +132,21 @@ inspect eval examples/*/task.py --max-tasks 2
 
 ## Viewing Results
 
-Eval results are saved as `.eval` log files in `logs/`. These are binary
-(compressed JSON) and need Inspect's tools to read.
+Eval results are saved as `.eval` log files in `logs/`. Use Inspect's
+tools to view them.
 
 ```bash
-# Open the web viewer (shows all logs in logs/)
+# Open the web viewer (serves all logs in logs/)
 inspect view
-
-# View a specific log file
-inspect view --log-dir logs
 
 # List recent eval logs
 inspect log list
 
-# Print summary of a log to terminal
-inspect log read logs/2026-06-19T08-25-18_hello-world_abc123.eval
+# Dump a log as JSON to terminal
+inspect log dump logs/<log-file>.eval
+
+# Convert to JSON file for scripting
+inspect log convert logs/<log-file>.eval --to json
 ```
 
 > [!TIP]
