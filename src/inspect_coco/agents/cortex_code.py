@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 
 from inspect_ai.agent import Agent, AgentState, agent
 from inspect_ai.model import ChatMessageAssistant, ModelOutput
@@ -15,21 +16,27 @@ logger = logging.getLogger(__name__)
 
 
 @agent
-def cortex_code(
+def coco(
     timeout_sec: int = 900,
-    skills: list[str] | None = None,
+    max_turns: int | None = None,
     remove_skills: list[str] | None = None,
     model_name: str | None = None,
     connection_name: str | None = None,
+    workdir: str | None = None,
 ) -> Agent:
-    """Cortex Code agent — runs the cortex CLI in a Docker sandbox.
+    """CoCo agent — runs `cortex exec` in a Docker sandbox.
+
+    Uses the CI/CD-optimized `cortex exec` command (beta) which runs
+    non-interactively with plan mode disabled and interactive prompts
+    auto-rejected. Model defaults to CoCo auto mode unless overridden.
 
     Args:
         timeout_sec: Maximum execution time for the cortex CLI.
-        skills: Custom skill paths to load.
+        max_turns: Maximum agentic turns (safety ceiling).
         remove_skills: Bundled skills to disable.
-        model_name: Model to use (e.g. "claude-sonnet-4-5").
+        model_name: Model override (e.g. "claude-sonnet-4-5"). Default: auto mode.
         connection_name: Named Snowflake connection to use.
+        workdir: Working directory inside the sandbox.
     """
     _credentials_deployed = False
 
@@ -45,16 +52,31 @@ def cortex_code(
             config = resolve_connection(connection_name)
             env_vars = _build_env_from_config(config)
 
+        # Resolve model: explicit param > env var > None (CLI default)
+        resolved_model = model_name or os.environ.get("INSPECT_COCO_MODEL")
+
         # Extract prompt from the last user message
         prompt = _extract_prompt(state)
 
-        # Build cortex CLI command
-        cmd = _build_command(prompt, model_name, skills)
+        # Write prompt to file in sandbox (avoids shell escaping issues with large markdown)
+        prompt_path = "/tmp/inspect-coco-prompt.md"
+        await sandbox().write_file(prompt_path, prompt)
+
+        # Build cortex exec command (uses --file to read prompt)
+        cmd = _build_command(
+            prompt_file=prompt_path,
+            model_name=resolved_model,
+            max_turns=max_turns,
+            connection_name=connection_name,
+            workdir=workdir,
+        )
 
         # Build environment
+        cortex_channel = os.environ.get("INSPECT_COCO_CHANNEL", "stable")
         env = {
             **env_vars,
             "COCO_TELEMETRY_DISABLED": "true",
+            "CORTEX_CHANNEL": cortex_channel,
         }
         if remove_skills:
             env["CORTEX_DISABLE_BUNDLED_SKILLS"] = ",".join(remove_skills)
@@ -130,25 +152,34 @@ def _extract_prompt(state: AgentState) -> str:
 
 
 def _build_command(
-    prompt: str,
+    prompt_file: str,
     model_name: str | None,
-    skills: list[str] | None,
+    max_turns: int | None = None,
+    connection_name: str | None = None,
+    workdir: str | None = None,
 ) -> list[str]:
-    """Build the cortex CLI command."""
+    """Build the cortex exec command for CI/CD non-interactive execution."""
     cmd = [
         "cortex",
-        "--print",
-        prompt,
-        "--dangerously-allow-all-tool-calls",
-        "--output-format",
-        "stream-json",
+        "exec",
+        "--file",
+        prompt_file,
+        "--format",
+        "json",
+        "--bypass",
+        "--no-history",
     ]
 
     if model_name:
         cmd.extend(["--model", model_name])
 
-    if skills:
-        for skill_path in skills:
-            cmd.extend(["--skill", skill_path])
+    if max_turns:
+        cmd.extend(["--max-turns", str(max_turns)])
+
+    if connection_name:
+        cmd.extend(["--connection", connection_name])
+
+    if workdir:
+        cmd.extend(["--workdir", workdir])
 
     return cmd

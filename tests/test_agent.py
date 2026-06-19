@@ -7,36 +7,52 @@ from inspect_coco.agents.cortex_code import _build_command, _extract_prompt
 
 class TestBuildCommand:
     def test_minimal_command(self):
-        cmd = _build_command("Hello world", model_name=None, skills=None)
+        cmd = _build_command("/tmp/prompt.md", model_name=None)
         assert cmd == [
             "cortex",
-            "--print",
-            "Hello world",
-            "--dangerously-allow-all-tool-calls",
-            "--output-format",
-            "stream-json",
+            "exec",
+            "--file",
+            "/tmp/prompt.md",
+            "--format",
+            "json",
+            "--bypass",
+            "--no-history",
         ]
 
     def test_with_model(self):
-        cmd = _build_command("test", model_name="claude-sonnet-4-5", skills=None)
+        cmd = _build_command("/tmp/p.md", model_name="claude-sonnet-4-5")
         assert "--model" in cmd
         assert "claude-sonnet-4-5" in cmd
 
-    def test_with_skills(self):
-        cmd = _build_command("test", model_name=None, skills=["/path/skill.md", "/other.md"])
-        assert cmd.count("--skill") == 2
-        assert "/path/skill.md" in cmd
-        assert "/other.md" in cmd
+    def test_with_max_turns(self):
+        cmd = _build_command("/tmp/p.md", model_name=None, max_turns=30)
+        assert "--max-turns" in cmd
+        assert "30" in cmd
+
+    def test_with_connection(self):
+        cmd = _build_command("/tmp/p.md", model_name=None, connection_name="prod")
+        assert "--connection" in cmd
+        assert "prod" in cmd
+
+    def test_with_workdir(self):
+        cmd = _build_command("/tmp/p.md", model_name=None, workdir="/workspace")
+        assert "--workdir" in cmd
+        assert "/workspace" in cmd
 
     def test_with_all_options(self):
         cmd = _build_command(
-            "do something",
+            "/tmp/p.md",
             model_name="claude-opus-4-5",
-            skills=["/s1.md"],
+            max_turns=50,
+            connection_name="eval",
+            workdir="/project",
         )
-        assert "do something" in cmd
+        assert "--file" in cmd
+        assert "/tmp/p.md" in cmd
         assert "claude-opus-4-5" in cmd
-        assert "/s1.md" in cmd
+        assert "50" in cmd
+        assert "eval" in cmd
+        assert "/project" in cmd
 
 
 class TestExtractPrompt:
