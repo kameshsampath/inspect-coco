@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from inspect_coco.agents.cortex_code import _build_command, _extract_prompt
+from inspect_coco.agents.coco import _build_command, _extract_prompt
 
 
 class TestBuildCommand:
