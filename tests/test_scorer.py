@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from inspect_coco.scorers.verification import passed, total, verification
+from inspect_coco.scorers.verification import pass_rate, verification
 
 
 class TestVerificationScorer:
@@ -82,28 +82,38 @@ class TestVerificationScorer:
 
 
 class TestMetrics:
-    def test_passed_metric(self):
-        metric_fn = passed()
+    def _sample_score(self, value):
+        """Create a mock SampleScore with score.value."""
+        sample = MagicMock()
+        sample.score.value = value
+        return sample
+
+    def test_pass_rate_all_pass(self):
+        metric_fn = pass_rate()
         scores = [
-            MagicMock(value=1.0),
-            MagicMock(value=0.0),
-            MagicMock(value=1.0),
+            self._sample_score(1.0),
+            self._sample_score(1.0),
+            self._sample_score(1.0),
         ]
-        assert metric_fn(scores) == 2
+        assert metric_fn(scores) == 1.0
 
-    def test_total_metric(self):
-        metric_fn = total()
+    def test_pass_rate_mixed(self):
+        metric_fn = pass_rate()
         scores = [
-            MagicMock(value=1.0),
-            MagicMock(value=0.0),
-            MagicMock(value=1.0),
+            self._sample_score(1.0),
+            self._sample_score(0.0),
+            self._sample_score(1.0),
         ]
-        assert metric_fn(scores) == 3
+        assert metric_fn(scores) == 0.67
 
-    def test_passed_empty(self):
-        metric_fn = passed()
-        assert metric_fn([]) == 0
+    def test_pass_rate_empty(self):
+        metric_fn = pass_rate()
+        assert metric_fn([]) == 0.0
 
-    def test_total_empty(self):
-        metric_fn = total()
-        assert metric_fn([]) == 0
+    def test_pass_rate_all_fail(self):
+        metric_fn = pass_rate()
+        scores = [
+            self._sample_score(0.0),
+            self._sample_score(0.0),
+        ]
+        assert metric_fn(scores) == 0.0

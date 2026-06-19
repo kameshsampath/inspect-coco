@@ -1,8 +1,8 @@
-# Writing Eval Tasks
+# Writing Evals
 
 How to create eval tasks for your CoCo skills.
 
-## Quick Way: Use the CoCo Skill
+## Quick path: use the CoCo skill
 
 ```
 $inspect-coco:create-task
@@ -10,7 +10,7 @@ $inspect-coco:create-task
 
 This walks you through creating a task with guided prompts.
 
-## Manual Way
+## Manual path
 
 Create a directory with three files:
 
@@ -24,9 +24,9 @@ my-eval/
 
 ### Step 1: Write instruction.md
 
-Use the IDD template:
+Use the IDD template for consistent, deterministic results:
 
-```markdown
+```markdown title="instruction.md"
 ## Goal
 
 <What should exist after the agent runs>
@@ -48,55 +48,55 @@ Success criteria:
 - <Verifiable condition 2>
 ```
 
-> [!TIP]
-> Run the IDD scorer on your instruction before committing:
-> ```python
-> from inspect_coco.idd import score_instruction, explain_score
-> score = score_instruction(open("instruction.md").read())
-> print(explain_score(score))
-> ```
+!!! tip "Validate before committing"
 
-### Step 2: Write test.sh
+    Run the IDD scorer on your instruction to catch quality issues early:
 
-The test script runs after the agent finishes. Exit code 0 = pass, non-zero = fail.
+    ```bash
+    inspect-coco idd-check my-eval/
+    ```
 
-```bash
+### Step 2: Write tests/test.sh
+
+The test script runs inside the Docker sandbox after the agent finishes. Exit code 0 means pass, non-zero means fail.
+
+```bash title="tests/test.sh"
 #!/bin/bash
 set -e
 
-# Check file exists
+# Check the file exists
 test -f /workspace/output.txt
 
-# Check content
+# Check the content
 grep -q "expected string" /workspace/output.txt
 
 echo "PASS"
 ```
 
-Common patterns:
+??? example "Common test patterns"
 
-```bash
-# File existence
-test -f /workspace/app.py
+    ```bash
+    # File existence
+    test -f /workspace/app.py
 
-# Python runs without error
-python /workspace/app.py
+    # Python runs without error
+    python /workspace/app.py
 
-# JSON is valid
-python -c "import json; json.load(open('/workspace/data.json'))"
+    # JSON is valid
+    python -c "import json; json.load(open('/workspace/data.json'))"
 
-# Specific content
-grep -q "class MyClass" /workspace/app.py
+    # Specific content present
+    grep -q "class MyClass" /workspace/app.py
 
-# pytest
-cd /workspace && pytest tests/ -v
-```
+    # Run pytest
+    cd /workspace && pytest tests/ -v
+    ```
 
 ### Step 3: Write task.toml
 
-Minimal:
+Minimal configuration:
 
-```toml
+```toml title="task.toml"
 version = "1.0"
 
 [metadata]
@@ -106,7 +106,7 @@ name = "my-eval"
 timeout_sec = 900
 ```
 
-See [task.toml reference](task-toml.md) for all options.
+See [Task Configuration](task-toml.md) for all options.
 
 ### Step 4: Run
 
@@ -114,11 +114,11 @@ See [task.toml reference](task-toml.md) for all options.
 inspect-coco run my-eval/
 ```
 
-## Design Principles
+## Design principles
 
 ### One eval, one behavior
 
-Each eval tests exactly one thing. Don't combine "create a file AND fix a bug AND run tests" into one task. Split them:
+Each eval tests exactly one thing. Do not combine "create a file AND fix a bug AND run tests" into a single task. Split them:
 
 ```
 evals/
@@ -127,34 +127,37 @@ evals/
 └── run-test-suite/         # tests: can agent run pytest?
 ```
 
-Benefits:
-- When something fails, you know exactly which behavior broke
-- Tasks run in parallel (faster)
-- Easy to add/remove individual tests
+This gives you:
+
+- Clear failure signals (you know which behavior broke)
+- Parallel execution (faster feedback)
+- Easy addition and removal of individual tests
 
 ### Starter files
 
-If the agent needs existing files to work with (code to fix, config to modify), put them in `starter/`:
+If the agent needs existing files to work with (code to fix, config to modify), place them in a `starter/` directory:
 
 ```
 fix-import-error/
 ├── task.toml
 ├── instruction.md
 ├── starter/
-│   └── app.py          # broken file for agent to fix
+│   └── app.py          # (1)!
 └── tests/
     └── test.sh
 ```
 
-Files in `starter/` are copied to `/workspace/` before the agent runs.
+1. This broken file gets copied to `/workspace/app.py` before the agent runs.
+
+Files in `starter/` are copied to `/workspace/` before the agent starts.
 
 ### Custom Docker environment
 
 If your eval needs specific tools or services, add a `compose.yaml`:
 
-```yaml
+```yaml title="compose.yaml"
 services:
-  default:
+  default:  # (1)!
     build:
       context: ../../src/inspect_coco/sandbox
       dockerfile: Dockerfile
@@ -164,17 +167,14 @@ services:
       - DATABASE_URL=postgres://localhost/test
 ```
 
-> [!IMPORTANT]
-> The service must be named `default`. Inspect requires this.
+1. The service **must** be named `default`. Inspect requires this convention.
 
-## Scaffolding from an Existing Plugin
+## Scaffolding from a plugin
 
-If you have a CoCo plugin with skills, the scaffold skill auto-generates evals:
+If you have a CoCo plugin with skills, the scaffold command auto-generates evals:
 
 ```
 $inspect-coco:scaffold
 ```
 
-It reads your `.cortex-plugin/plugin.json`, finds leaf skills (skips routers),
-and creates one eval per skill.
-See [scaffold skill](../skills/scaffold/SKILL.md) for details.
+It reads your `.cortex-plugin/plugin.json`, finds leaf skills (skipping routers), and creates one eval per skill with IDD-structured instructions.

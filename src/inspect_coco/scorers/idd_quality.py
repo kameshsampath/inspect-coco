@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from inspect_ai.scorer import (
     Metric,
+    SampleScore,
     Score,
     Target,
     Value,
@@ -13,18 +14,18 @@ from inspect_ai.scorer import (
 from inspect_ai.solver import TaskState
 
 
-@metric
+@metric(name="IDD Score")
 def idd_score() -> Metric:
     """Average IDD quality score across samples."""
 
-    def metric_fn(scores: list[Score]) -> Value:
-        vals = [s.value for s in scores if isinstance(s.value, int | float)]
-        return sum(vals) / len(vals) if vals else 0.0
+    def metric_fn(scores: list[SampleScore]) -> Value:
+        vals = [s.score.value for s in scores if isinstance(s.score.value, int | float)]
+        return round(sum(vals) / len(vals), 2) if vals else 0.0
 
     return metric_fn
 
 
-@scorer(metrics=[idd_score()])
+@scorer(metrics=[idd_score()], name="IDD Quality")
 def idd_quality(instruction: str, threshold: float = 0.6):
     """Score the IDD quality of the instruction.
 

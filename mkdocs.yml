@@ -1,0 +1,120 @@
+site_name: Inspect CoCo
+site_url: https://kameshsampath.github.io/inspect-coco/
+site_description: >
+    Deterministic evaluations for Cortex Code skills using Inspect AI. IDD-structured instructions, pass@k consistency,
+    Docker sandboxed execution.
+
+repo_url: https://github.com/kameshsampath/inspect-coco
+repo_name: kameshsampath/inspect-coco
+edit_uri: edit/main/docs/
+
+extra_css:
+    - stylesheets/extra.css
+
+theme:
+    name: material
+    palette:
+        - scheme: default
+          primary: custom
+          accent: teal
+          toggle:
+              icon: material/brightness-7
+              name: Switch to dark mode
+        - scheme: slate
+          primary: custom
+          accent: teal
+          toggle:
+              icon: material/brightness-4
+              name: Switch to light mode
+    font: false
+    icon:
+        repo: fontawesome/brands/github
+    features:
+        - content.code.copy
+        - content.code.select
+        - content.code.annotate
+        - content.tabs.link
+        - content.tooltips
+        - navigation.sections
+        - navigation.expand
+        - navigation.instant
+        - navigation.instant.progress
+        - navigation.tracking
+        - navigation.footer
+        - navigation.top
+        - navigation.indexes
+        - toc.follow
+        - search.suggest
+        - search.highlight
+
+nav:
+    - Home:
+          - Overview: index.md
+          - Architecture: architecture.md
+    - User Guide:
+          - Getting Started: getting-started.md
+          - Writing Evals: writing-evals.md
+          - Suite Configuration: suite-yaml.md
+          - Task Configuration: task-toml.md
+          - IDD Scoring: idd-scoring.md
+          - Metrics and Reporting: metrics.md
+    - CLI Reference: cli.md
+    - API Reference:
+          - api/index.md
+          - Task Loader: api/tasks.md
+          - Scorers: api/scorers.md
+          - Agent: api/agents.md
+          - IDD Scorer: api/idd.md
+          - Suite Loader: api/suite.md
+          - Configuration: api/config.md
+
+markdown_extensions:
+    - toc:
+          baselevel: 1
+          permalink: "#"
+    - admonition
+    - attr_list
+    - md_in_html
+    - def_list
+    - footnotes
+    - pymdownx.highlight:
+          anchor_linenums: true
+          line_spans: __span
+          pygments_lang_class: true
+          use_pygments: true
+    - pymdownx.betterem
+    - pymdownx.caret
+    - pymdownx.mark
+    - pymdownx.tilde
+    - pymdownx.details
+    - pymdownx.inlinehilite
+    - pymdownx.snippets
+    - pymdownx.superfences:
+          custom_fences:
+              - name: mermaid
+                class: mermaid
+                format: !!python/name:pymdownx.superfences.fence_code_format
+    - pymdownx.tabbed:
+          alternate_style: true
+    - tables
+    - pymdownx.tasklist:
+          custom_checkbox: true
+    - pymdownx.emoji:
+          emoji_index: !!python/name:material.extensions.emoji.twemoji
+          emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+plugins:
+    - search
+    - mkdocstrings:
+          default_handler: python
+          handlers:
+              python:
+                  paths: [src]
+                  options:
+                      show_source: true
+                      show_root_heading: true
+                      show_symbol_type_heading: true
+                      members_order: source
+                      docstring_style: google
+                      merge_init_into_class: true
+                      show_if_no_docstring: false
