@@ -1,4 +1,4 @@
-# Inspect with Snowflake Cortex Code(inspect-coco)
+# inspect-coco
 
 Deterministic evaluations for
 [Cortex Code](https://docs.snowflake.com/en/user-guide/cortex-code/cortex-code)
@@ -33,6 +33,19 @@ cp .env.example .env
 
 ### Run your first eval
 
+The primary way to use inspect-coco is as a **CoCo plugin** from within
+Cortex Code:
+
+```text
+# Scaffold evals from your plugin's skills
+$inspect-coco:scaffold
+
+# Create a single eval task with guided IDD prompts
+$inspect-coco:create-task
+```
+
+You can also use the CLI for scripting and CI:
+
 ```bash
 # Check instruction quality (no Docker needed)
 inspect-coco idd-check examples/
@@ -44,33 +57,100 @@ inspect-coco run examples/hello-world
 inspect view
 ```
 
-## CLI
+## Usage
+
+### As a CoCo Plugin (recommended)
+
+Install the plugin in your project and invoke skills directly from
+Cortex Code. This gives you interactive guidance, IDD template
+generation, and context-aware scaffolding.
+
+| Skill | What it does |
+|-------|-------------|
+| `$inspect-coco:scaffold` | Scan plugin, generate eval suites per skill |
+| `$inspect-coco:create-task` | Guided single-task creation with IDD structure |
+
+### As a CLI
+
+The CLI provides the same functionality for scripts, CI pipelines,
+and terminal workflows.
 
 | Command | What it does |
 |---------|-------------|
+| `inspect-coco scaffold` | Generate eval suites from plugin structure |
 | `inspect-coco run <path>` | Execute eval suite(s) or a single task |
 | `inspect-coco idd-check <path>` | Score instruction quality (no eval run) |
-| `inspect-coco scaffold` | Generate eval suites from plugin structure |
 
 See [docs/cli.md](docs/cli.md) for full reference.
 
 ## How It Works
 
-```
-instruction.md ─────> IDD scoring ─────> pass/warn/fail
-       │
-       ▼
-  Docker sandbox ───> cortex exec ───> test.sh ───> score
-       │                                              │
-       └──── repeat N epochs ─────────────────────────┘
-                                                      │
-                                               pass@k metric
+```mermaid
+flowchart LR
+    A[instruction.md] --> B{IDD Scoring}
+    B -->|pass| C[Docker Sandbox]
+    B -->|warn/fail| D[Feedback]
+    C --> E[cortex exec]
+    E --> F[test.sh]
+    F --> G{Score}
+    G -->|repeat N epochs| C
+    G --> H[pass@k metric]
 ```
 
-1. **IDD pre-check**: scores your instruction for Goal/Requirements/Constraints/Output
-2. **Sandbox execution**: runs `cortex exec` inside Docker with your Snowflake credentials
-3. **Deterministic scoring**: `test.sh` (or pytest) verifies the output — exit 0 = pass
-4. **Consistency**: repeats across epochs for a pass@k reliability metric
+1. **IDD pre-check** -- scores your instruction for
+   Goal/Requirements/Constraints/Output
+2. **Sandbox execution** -- runs `cortex exec` inside Docker with your
+   Snowflake credentials
+3. **Deterministic scoring** -- `test.sh` (or pytest) verifies the
+   output; exit 0 = pass
+4. **Consistency** -- repeats across epochs for a pass@k reliability
+   metric
+
+## Writing Evals
+
+Each eval task is a directory:
+
+```mermaid
+flowchart TD
+    subgraph taskDir [my-task/]
+        T[task.toml] --- I[instruction.md]
+        I --- TS[tests/test.sh]
+        TS --- TP[task.py]
+    end
+
+    subgraph config [task.toml]
+        C1[timeout, epochs]
+        C2[IDD threshold]
+    end
+
+    subgraph instruction [instruction.md]
+        S1["## Goal"]
+        S2["## Requirements"]
+        S3["## Constraints"]
+        S4["## Output"]
+    end
+```
+
+Group tasks into suites with `suite.yaml` for shared defaults.
+See [docs/writing-evals.md](docs/writing-evals.md) for details.
+
+## Scaffold from Existing Skills
+
+If you have a CoCo plugin with skills:
+
+```text
+# From within Cortex Code (recommended)
+$inspect-coco:scaffold
+```
+
+```bash
+# Or via CLI
+inspect-coco scaffold --dry-run   # preview
+inspect-coco scaffold             # generate
+```
+
+This reads `.cortex-plugin/plugin.json`, detects leaf skills (skips routers),
+and generates IDD-structured eval tasks per skill.
 
 ## Project Structure
 
@@ -87,33 +167,6 @@ src/inspect_coco/
   trajectory/       # cortex exec output parser
   sandbox/          # Dockerfile + default compose.yaml
 ```
-
-## Writing Evals
-
-Each eval task is a directory:
-
-```
-my-task/
-  task.toml         # Config: timeout, epochs, IDD threshold
-  instruction.md    # Agent prompt (IDD-structured)
-  tests/test.sh     # Verification (exit 0 = pass)
-  task.py           # Inspect entry point
-```
-
-Group tasks into suites with `suite.yaml` for shared defaults.
-See [docs/writing-evals.md](docs/writing-evals.md) for details.
-
-## Scaffold from Existing Skills
-
-If you have a CoCo plugin with skills:
-
-```bash
-inspect-coco scaffold --dry-run   # preview
-inspect-coco scaffold             # generate
-```
-
-This reads `.cortex-plugin/plugin.json`, detects leaf skills (skips routers),
-and generates IDD-structured eval tasks per skill.
 
 ## Documentation
 
