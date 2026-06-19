@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 )
 @click.option("--epochs", type=int, help="Override epochs (pass@k).")
 @click.option("--model", type=str, help="Override CoCo model.")
-@click.option("--connection", type=str, help="Override Snowflake connection name.")
+@click.option("-c", "--connection", type=str, help="Override Snowflake connection name.")
 @click.option("--limit", type=int, help="Limit samples per task (for quick tests).")
 @click.option("--dry-run", is_flag=True, help="Show what would run without executing.")
 def run(
