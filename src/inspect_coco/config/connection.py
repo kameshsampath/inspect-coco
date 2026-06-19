@@ -30,9 +30,9 @@ class SnowflakeConnectionConfig:
     @property
     def authenticator(self) -> str:
         if self.private_key_path:
-            return "snowflake_jwt"
+            return "SNOWFLAKE_JWT"
         if self.token:
-            return "programmatic_access_token"
+            return "PROGRAMMATIC_ACCESS_TOKEN"
         raise ValueError(
             "No supported auth method found. "
             "Provide private_key_path (JWT) or token (PAT) in your connection config."

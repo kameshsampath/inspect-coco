@@ -41,7 +41,7 @@ private_key_path = "/path/to/key.p8"
         assert config.warehouse == "COMPUTE_WH"
         assert config.private_key_path == "/path/to/key.p8"
         assert config.token is None
-        assert config.authenticator == "snowflake_jwt"
+        assert config.authenticator == "SNOWFLAKE_JWT"
 
     def test_pat_connection(self, sf_home: Path):
         (sf_home / "connections.toml").write_text("""
@@ -53,7 +53,7 @@ token = "pat-token-value"
         config = resolve_connection()
         assert config.token == "pat-token-value"
         assert config.private_key_path is None
-        assert config.authenticator == "programmatic_access_token"
+        assert config.authenticator == "PROGRAMMATIC_ACCESS_TOKEN"
 
     def test_named_connection(self, sf_home: Path):
         (sf_home / "connections.toml").write_text("""
@@ -114,7 +114,7 @@ user = "testuser"
 """)
         config = resolve_connection()
         assert config.token == "env-pat-value"
-        assert config.authenticator == "programmatic_access_token"
+        assert config.authenticator == "PROGRAMMATIC_ACCESS_TOKEN"
 
 
 class TestResolveConnectionFromConfigToml:
@@ -133,7 +133,7 @@ role = "ANALYST"
         config = resolve_connection()
         assert config.account == "oldorg-oldaccount"
         assert config.role == "ANALYST"
-        assert config.authenticator == "snowflake_jwt"
+        assert config.authenticator == "SNOWFLAKE_JWT"
 
     def test_config_toml_named_connection(self, sf_home: Path):
         (sf_home / "config.toml").write_text("""
@@ -211,11 +211,11 @@ class TestSnowflakeConnectionConfig:
         config = SnowflakeConnectionConfig(
             account="a", user="u", host="h", private_key_path="/k.p8"
         )
-        assert config.authenticator == "snowflake_jwt"
+        assert config.authenticator == "SNOWFLAKE_JWT"
 
     def test_authenticator_pat(self):
         config = SnowflakeConnectionConfig(account="a", user="u", host="h", token="pat")
-        assert config.authenticator == "programmatic_access_token"
+        assert config.authenticator == "PROGRAMMATIC_ACCESS_TOKEN"
 
     def test_authenticator_none_raises(self):
         config = SnowflakeConnectionConfig(account="a", user="u", host="h")

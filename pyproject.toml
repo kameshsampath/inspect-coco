@@ -42,6 +42,9 @@ known-first-party = ["inspect_coco"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+markers = [
+    "docker: tests requiring Docker daemon (deselect with -m 'not docker')",
+]
 
 [tool.pyright]
 pythonVersion = "3.12"
