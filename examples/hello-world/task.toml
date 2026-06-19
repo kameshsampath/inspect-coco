@@ -1,0 +1,14 @@
+version = "1.0"
+
+[metadata]
+name = "hello-world"
+description = "Simple file creation eval — verifies basic agent execution"
+epochs = 3
+idd_threshold = 0.6
+
+[agent]
+timeout_sec = 300
+max_turns = 10
+
+[environment]
+test_timeout = 60

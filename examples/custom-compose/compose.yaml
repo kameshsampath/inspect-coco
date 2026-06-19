@@ -1,0 +1,12 @@
+services:
+  default:
+    build:
+      context: ../../src/inspect_coco/sandbox
+      dockerfile: Dockerfile
+    init: true
+    command: ["tail", "-f", "/dev/null"]
+    environment:
+      - CUSTOM_ENV=from-compose
+    env_file:
+      - path: .env
+        required: false
