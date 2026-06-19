@@ -29,6 +29,27 @@ SNOWFLAKE_CONNECTION_NAME=my-connection
 
 ## Running Examples
 
+### Using `inspect-coco` CLI (recommended)
+
+```bash
+# Check IDD scores for all examples (no Docker needed)
+inspect-coco idd-check examples/
+
+# Run all examples as a suite (uses suite.yaml)
+inspect-coco run examples/
+
+# Dry-run to see what would execute
+inspect-coco run examples/ --dry-run
+
+# Run a single example
+inspect-coco run examples/hello-world
+
+# Override epochs
+inspect-coco run examples/hello-world --epochs 5
+```
+
+### Using `inspect eval` directly
+
 ```bash
 # Run a single example (point to the directory)
 inspect eval examples/hello-world
@@ -96,10 +117,17 @@ Or see [Writing Evals](../docs/writing-evals.md) for the manual approach.
 
 ## Running a Test Suite
 
-To run all evals in a directory as a suite:
+The recommended way to run all evals is via `suite.yaml`:
 
 ```bash
-# Run all examples
+# Uses suite.yaml to discover and run all tasks
+inspect-coco run examples/
+```
+
+Or use `inspect eval` directly:
+
+```bash
+# Run specific examples
 inspect eval examples/hello-world examples/fix-syntax-errors examples/custom-compose
 
 # Or use a shell glob

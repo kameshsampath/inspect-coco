@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.scripts]
-inspect-coco = "inspect_coco.cli:main"
+inspect-coco = "inspect_coco.cmd:main"
 
 [project.entry-points.inspect_ai]
 inspect_coco = "inspect_coco._registry"
