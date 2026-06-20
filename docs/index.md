@@ -1,8 +1,10 @@
 # Inspect CoCo
 
-**Deterministic skill evaluations for Cortex Code agents.**
+**AI agents are non-deterministic. Test whether yours works reliably.**
 
-inspect-coco measures whether your CoCo skills produce correct, consistent results. It runs your agent against structured instructions inside isolated Docker containers, scores the output with deterministic tests, and repeats the process to surface flaky behavior.
+inspect-coco runs your agent against structured instructions inside
+isolated Docker containers, verifies output with deterministic tests,
+and repeats the process to surface flaky behavior.
 
 The core question it answers: *does this skill do the right thing every time?*
 
@@ -26,28 +28,36 @@ flowchart TD
 5. A **verification script** checks whether the agent produced the correct result.
 6. **Epochs** repeat the process multiple times to measure consistency.
 
+## Why Inspect AI?
+
+Agent evaluation requires sandboxed code execution, not text scoring. See
+[Why Inspect AI?](why-inspect-ai.md) for the full rationale and comparison
+with Promptfoo, DeepEval, Braintrust, LangSmith, and Eleuther.
+
 ## Why structured instructions matter
 
-Vague instructions produce inconsistent results. When you tell an agent to "set up the project properly," each run may take a different path. Structured instructions (IDD format) narrow the solution space so the agent converges on the same correct behavior across runs.
+Vague instructions produce inconsistent results. When you tell an agent to
+"set up the project properly," each run takes a different path. Structured
+instructions (IDD format) narrow the solution space so the agent converges
+on the same correct behavior across runs.
 
-This is the hypothesis inspect-coco helps you validate: **high instruction quality predicts high pass@k consistency.**
+This is the hypothesis inspect-coco validates: **high instruction quality
+predicts high pass@k consistency.**
 
 ## Quick start
 
 ```bash
-# Install
-uv add git+https://github.com/kameshsampath/inspect-coco.git
-
-# Run the example evals
-inspect-coco run examples/
-
-# View results in the browser
-inspect view
+git clone https://github.com/kameshsampath/inspect-coco.git && cd inspect-coco
+task quickstart
 ```
+
+This installs dependencies, runs the `hello-world` eval (3 epochs), and
+opens the results viewer.
 
 !!! tip "First time setup"
 
-    See [Getting Started](getting-started.md) for prerequisites (Docker, Snowflake CLI, connection configuration) and a full walkthrough.
+    See [Getting Started](getting-started.md) for prerequisites (Docker,
+    Task, Cortex Code CLI, Snowflake connection) and a full walkthrough.
 
 ## What you get
 
@@ -55,3 +65,4 @@ inspect view
 - **IDD quality feedback** on your instructions before running expensive evals
 - **Full transcripts** of every agent conversation (tool calls, responses, timing)
 - **Scaffolding** that generates eval tasks from existing plugin structure
+- **Zero SaaS dependencies** -- everything runs locally with Docker

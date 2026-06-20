@@ -4,23 +4,120 @@
 [![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
 [![Sandbox Image](https://img.shields.io/badge/ghcr.io-inspect--coco--sandbox-purple?logo=docker)](https://ghcr.io/kameshsampath/inspect-coco-sandbox)
 
+**AI agents are non-deterministic. The same prompt produces different
+results every run. inspect-coco measures whether yours works reliably.**
+
+Write an instruction, write a test script, run it N times, get a
+consistency score. No LLM-as-judge variance. Exit 0 means pass.
+
+```bash
+git clone https://github.com/kameshsampath/inspect-coco.git && cd inspect-coco
+task quickstart
+```
+
+Expected output:
+
+```
+             hello-world
+┏━━━━━━━━┳━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━━━┓
+┃  Epoch ┃ Result ┃ Score ┃            IDD ┃
+┡━━━━━━━━╇━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━━━━┩
+│      1 │  PASS  │  1.00 │           1.00 │
+│      2 │  PASS  │  1.00 │           1.00 │
+│      3 │  FAIL  │  0.00 │           1.00 │
+├────────┼────────┼───────┼────────────────┤
+│ pass@3 │  2/3   │  0.67 │ variance=0.222 │
+└────────┴────────┴───────┴────────────────┘
+```
+
 > [!NOTE]
-> Early development. The API may change. Not yet published to PyPI.
+> - Early development. The API may change. Not yet published to PyPI.
+> - Requires [Cortex Code](https://docs.snowflake.com/en/user-guide/cortex-code/cortex-code)
+>   beta channel (`cortex exec --help` to verify).
 
-Deterministic evaluations for
-[Cortex Code](https://docs.snowflake.com/en/user-guide/cortex-code/cortex-code)
-(CoCo) skills using [Inspect AI](https://inspect.aisi.org.uk/).
+## See what's inside
 
-- Scaffold eval suites from existing CoCo plugins in one command.
-- Score instruction quality with IDD (Intent-Driven Development) analysis.
-- Measure consistency via pass@k (repeated runs with epochs).
+An eval is three files. Here's the included `examples/hello-world/`:
+
+**instruction.md** (what the agent should do):
+
+```markdown
+## Goal
+Create a file `/workspace/hello.txt` containing exactly "Hello, World!".
+
+## Requirements
+- The file must be at `/workspace/hello.txt`
+- Content must be exactly "Hello, World!" with no trailing newline
+
+## Constraints
+- Do not create any other files
+- Do not install any packages
+
+## Output
+- File `/workspace/hello.txt` exists
+- Content is exactly "Hello, World!" (verified by test script)
+```
+
+**tests/test.sh** (how you verify it):
+
+```bash
+#!/bin/bash
+set -e
+
+if [ ! -f /workspace/hello.txt ]; then
+    echo "FAIL: /workspace/hello.txt does not exist"
+    exit 1
+fi
+
+CONTENT=$(cat /workspace/hello.txt)
+if [ "$CONTENT" != "Hello, World!" ]; then
+    echo "FAIL: Content mismatch. Got: '$CONTENT'"
+    exit 1
+fi
+
+echo "PASS"
+```
+
+**task.toml** (configuration):
+
+```toml
+version = "1.0"
+
+[metadata]
+name = "hello-world"
+description = "Simple file creation eval"
+epochs = 3
+idd_threshold = 0.6
+
+[agent]
+timeout_sec = 300
+max_turns = 10
+```
+
+That's it. No framework boilerplate, no scoring rubrics to calibrate,
+no API keys for an eval platform. The test script is a bash file you
+already know how to write.
+
+## What happens when you run it
+
+1. **IDD pre-check** scores your instruction quality. Vague instructions
+   get flagged before burning Docker compute.
+2. **Docker sandbox** starts with your Snowflake credentials deployed
+   securely (OAuth tokens stay in your OS keychain, never enter Docker).
+3. **`cortex exec`** runs inside the container with your instruction.
+4. **`test.sh`** verifies the result. Binary pass/fail.
+5. **Repeat N epochs.** pass@k tells you whether the skill works
+   consistently, not just once.
+
+![inspect-coco demo](docs/assets/demo.gif)
 
 ## Prerequisites
 
 - Python 3.12+
 - Docker 20.10+ running
+- [Task](https://taskfile.dev/) runner (`brew install go-task` / `go install github.com/go-task/task/v3/cmd/task@latest`)
 - [Cortex Code CLI](https://docs.snowflake.com/en/user-guide/cortex-code/cortex-code)
-  installed (beta channel). Verify with: `cortex exec --help`
+  (beta channel)
 - `~/.snowflake/connections.toml` with a supported authenticator:
 
 | Authenticator | Best for | Notes |
@@ -29,69 +126,58 @@ Deterministic evaluations for
 | `SNOWFLAKE_JWT` | CI / automation | Key-pair auth, key deployed into sandbox |
 | `PROGRAMMATIC_ACCESS_TOKEN` | CI / automation | Long-lived token deployed into sandbox |
 
-See [Security Model](docs/security.md) for details on how credentials are handled.
+See [Security Model](docs/security.md) for details on credential handling.
 
-## Quickstart
+## Install
 
-### Install the CoCo plugin
+```bash
+# As a Python package (for use in other projects)
+pip install git+https://github.com/kameshsampath/inspect-coco.git
 
-From within Cortex Code, run:
-
-```text
+# Or as a CoCo plugin (inside Cortex Code, works from any directory)
 cortex plugin https://github.com/kameshsampath/inspect-coco
-```
-
-This registers the `inspect-coco` skills (`scaffold` and `create-task`)
-in your project.
-
-### Configure
-
-```bash
-cp .env.example .env
-# Set INSPECT_COCO_SNOWFLAKE_CONNECTION to your connection.
-# Run: grep "^\[" ~/.snowflake/connections.toml to see available options.
-```
-
-### Run your first eval
-
-```bash
-# Check instruction quality (no Docker needed)
-inspect-coco idd-check examples/
-
-# Run an eval (requires Docker and a Snowflake connection)
-inspect-coco run examples/hello-world
-
-# View results in the browser
-inspect view
 ```
 
 ## Usage
 
-### As a CoCo plugin (recommended)
+> [!IMPORTANT]
+> All `task` commands must be run from the cloned repo root.
+> CoCo plugin skills (`$inspect-coco:scaffold`, `$inspect-coco:create-task`)
+> work from any directory.
 
-Once the plugin is installed, invoke skills directly from Cortex Code.
-This gives you interactive guidance, IDD template generation, and
-context-aware scaffolding.
+### Quick commands
+
+```bash
+# Generate eval tasks from your CoCo plugin structure
+task eval:scaffold
+task eval:scaffold -- --dry-run   # preview without writing
+
+# Score instruction quality (no Docker needed)
+task eval:idd
+
+# Run a single task (3 epochs)
+task eval:run -- examples/hello-world --epochs=3
+
+# Run all examples
+task eval:run
+
+# View results in browser
+task eval:view
+```
+
+Run `task --list` to see all available commands.
+
+### As a CoCo plugin
+
+Once installed, invoke skills directly from Cortex Code for interactive
+guidance, IDD template generation, and context-aware scaffolding.
 
 | Skill | What it does |
 |-------|-------------|
 | `$inspect-coco:scaffold` | Scan plugin structure, generate eval suites per leaf skill |
 | `$inspect-coco:create-task` | Guided single-task creation with IDD structure |
 
-### As a CLI
-
-The CLI provides the same functionality for scripts, CI pipelines,
-and terminal workflows.
-
-#### Install and use
-
-```shell
-# Install the package
-uv add git+https://github.com/kameshsampath/inspect-coco.git
-
-# Verify the CLI is available
-inspect-coco --help
-```
+### CLI reference
 
 | Command | What it does |
 |---------|-------------|
@@ -101,7 +187,50 @@ inspect-coco --help
 
 See [docs/cli.md](docs/cli.md) for the full command reference.
 
-## How it works
+## Writing your own evals
+
+The instruction follows a four-section format (IDD) that constrains agent
+behavior and makes scoring binary:
+
+```markdown
+## Goal
+Create a Python REST API with a /health endpoint.
+
+## Requirements
+- Use FastAPI
+- Return {"status": "ok"} on GET /health
+- Include a Dockerfile that builds and runs the app
+
+## Constraints
+- No external databases
+- Single-file implementation (main.py)
+- Port 8080
+
+## Output
+- main.py exists and is valid Python
+- Dockerfile builds without errors
+- GET localhost:8080/health returns {"status": "ok"}
+```
+
+Why this works: a clear Goal fixes the target, Requirements declare intent
+(not steps), Constraints close divergent paths, and Output criteria make
+scoring binary. The agent has less room to wander, so pass@k goes up.
+
+See [docs/writing-evals.md](docs/writing-evals.md) for the full guide.
+
+## Scaffold from existing skills
+
+If you already have a CoCo plugin:
+
+```bash
+task eval:scaffold -- --dry-run   # preview what would be generated
+task eval:scaffold                # generate eval tasks per leaf skill
+```
+
+This reads `.cortex-plugin/plugin.json`, detects leaf skills (skips
+routers), and generates IDD-structured eval tasks for each one.
+
+## How it works (architecture)
 
 ```mermaid
 sequenceDiagram
@@ -136,105 +265,31 @@ sequenceDiagram
     Docker-->>User: Eval log with pass@k score
 ```
 
-Agents are non-deterministic. The same vague prompt produces different
-outputs on every run. IDD structure narrows what the agent can
-reasonably do, which directly improves pass@k consistency:
+## Why Inspect AI?
 
-1. **IDD pre-check** gates execution. A clear Goal fixes the target,
-   Constraints close divergent paths, and concrete Output criteria make
-   scoring binary. Vague instructions get flagged before they waste
-   compute.
-2. **Sandbox execution** runs `cortex exec` inside Docker with your
-   Snowflake credentials deployed securely. Same environment every time.
-3. **Deterministic scoring** via `test.sh` (or pytest) checks facts,
-   not style. Exit 0 means pass.
-4. **Epochs** repeat the run N times. A well-structured IDD instruction
-   passes consistently; a vague one does not.
+Agent evaluation is not prompt scoring. It requires running untrusted code
+in containers, verifying filesystem/database state, and measuring
+consistency across repeated runs. Most eval frameworks (Promptfoo, DeepEval,
+Braintrust, LangSmith) assume text-in/text-out and lack sandboxed execution
+as a first-class primitive.
 
-## Viewing results
+[Inspect AI](https://inspect.aisi.org.uk/) provides this out of the box:
+Docker sandbox orchestration, epoch/pass@k execution, a plugin architecture
+(`@task`/`@agent`/`@scorer`), structured eval logs, and the `inspect view`
+web UI. inspect-coco adds the CoCo-specific layer: IDD pre-scoring as a
+quality gate, the `cortex exec` agent wrapper, secure credential deployment
+(OAuth token proxy, JWT, PAT), and deterministic test-script verification.
 
-Eval results are saved as `.eval` files in the `logs/` directory.
-
-```shell
-# Open the web viewer (serves all logs)
-inspect view
-
-# List recent eval logs
-inspect log list
-
-# Dump a specific log as JSON
-inspect log dump logs/<log-file>.eval
-```
-
-## Writing evals
-
-Each eval task is a directory:
-
-```
-my-task/
-  task.toml         # Configuration: timeout, epochs, IDD threshold
-  instruction.md    # Agent prompt (IDD-structured)
-  tests/test.sh     # Verification script (exit 0 = pass)
-```
-
-The `instruction.md` follows the IDD template:
-
-```markdown
-## Goal
-<desired outcome>
-
-## Requirements
-<intent statements, not steps>
-
-## Constraints
-<scope, safety, what not to do>
-
-## Output
-<verifiable success criteria>
-```
-
-Group tasks into suites with `suite.yaml` for shared defaults.
-See [docs/writing-evals.md](docs/writing-evals.md) for details.
-
-## Scaffold from existing skills
-
-If you already have a CoCo plugin with skills:
-
-```text
-# From within Cortex Code (recommended)
-$inspect-coco:scaffold
-```
-
-```bash
-# Or via CLI
-inspect-coco scaffold --dry-run   # preview what would be generated
-inspect-coco scaffold             # generate the files
-```
-
-This reads `.cortex-plugin/plugin.json`, detects leaf skills (skips routers),
-and generates IDD-structured eval tasks for each skill.
+See [docs/why-inspect-ai.md](docs/why-inspect-ai.md) for the full
+comparison and rationale.
 
 ## Build locally
 
 ```bash
-# Clone the repository
-git clone https://github.com/kameshsampath/inspect-coco.git
-cd inspect-coco
-
-# Install with uv (editable mode)
-uv sync
-
-# Run tests
-uv run pytest tests/ --ignore=tests/integration
-
-# Use the CLI
-uv run inspect-coco --help
-```
-
-Or install as a dependency in another project:
-
-```bash
-uv add git+https://github.com/kameshsampath/inspect-coco.git
+git clone https://github.com/kameshsampath/inspect-coco.git && cd inspect-coco
+task install          # uv sync with dev + docs groups
+task check            # lint + typecheck + tests
+task eval:dry-run     # verify eval setup without Docker
 ```
 
 ## Project structure
@@ -255,6 +310,7 @@ src/inspect_coco/
 
 ## Documentation
 
+- [Why Inspect AI?](docs/why-inspect-ai.md)
 - [Getting Started](docs/getting-started.md)
 - [CLI Reference](docs/cli.md)
 - [Task Configuration](docs/task-toml.md)

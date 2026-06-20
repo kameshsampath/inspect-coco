@@ -9,9 +9,10 @@ You need the following tools installed and working before proceeding:
 | Tool | Purpose | Install |
 |------|---------|---------|
 | Python 3.12+ | Runtime | [python.org](https://www.python.org/downloads/) |
-| Docker | Sandbox execution | [docker.com](https://docs.docker.com/get-started/get-docker/) |
+| Docker 20.10+ | Sandbox execution | [docker.com](https://docs.docker.com/get-started/get-docker/) |
+| [Task](https://taskfile.dev/) | Task runner | `brew install go-task` or [other methods](https://taskfile.dev/installation/) |
 | Snowflake CLI (`snow`) | Connection setup | `pip install snowflake-cli` |
-| Cortex Code CLI | Agent runtime | [docs.snowflake.com](https://docs.snowflake.com/en/user-guide/cortex-code/cortex-code) |
+| Cortex Code CLI | Agent runtime (beta) | [docs.snowflake.com](https://docs.snowflake.com/en/user-guide/cortex-code/cortex-code) |
 
 !!! warning "Authentication"
 
@@ -24,6 +25,15 @@ You need the following tools installed and working before proceeding:
     See the [Security Model](security.md) for a comparison.
 
 ## Install inspect-coco
+
+The recommended approach is to clone the repo and use the Taskfile:
+
+```bash
+git clone https://github.com/kameshsampath/inspect-coco.git && cd inspect-coco
+task install
+```
+
+Alternatively, install as a dependency in another project:
 
 === "uv (recommended)"
 
@@ -106,8 +116,16 @@ Or edit `~/.snowflake/connections.toml` directly:
 
 ## Run your first eval
 
+If you cloned the repo, you can run everything in one command:
+
 ```bash
-inspect-coco run examples/hello-world
+task quickstart
+```
+
+Or step by step:
+
+```bash
+task eval:run -- examples/hello-world --epochs=3
 ```
 
 This does the following:
@@ -121,7 +139,7 @@ This does the following:
 ## View results
 
 ```bash
-inspect view
+task eval:view
 ```
 
 This opens a browser-based log viewer showing:
