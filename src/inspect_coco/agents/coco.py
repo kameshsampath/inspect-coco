@@ -44,22 +44,18 @@ def coco(
     async def execute(state: AgentState) -> AgentState:
         nonlocal _credentials_deployed, _token_proxy
 
-        # Deploy credentials on first invocation
-        if not _credentials_deployed:
-            config = resolve_connection(connection_name)
+        # Always resolve fresh credentials and deploy into the sandbox.
+        # Each epoch gets a fresh container, so we must re-deploy every time.
+        config = resolve_connection(connection_name)
 
-            # Start token proxy for OAuth connections
-            if config.oauth_access_token:
-                from inspect_coco.proxy.server import TokenProxy
+        # Start token proxy for OAuth connections (once per agent lifecycle)
+        if config.oauth_access_token and _token_proxy is None:
+            from inspect_coco.proxy.server import TokenProxy
 
-                _token_proxy = TokenProxy(account=config.account, role=config.role)
-                _token_proxy.start()
+            _token_proxy = TokenProxy(account=config.account, role=config.role)
+            _token_proxy.start()
 
-            env_vars = await _deploy_to_sandbox(config, token_proxy=_token_proxy)
-            _credentials_deployed = True
-        else:
-            config = resolve_connection(connection_name)
-            env_vars = _build_env_from_config(config, token_proxy=_token_proxy)
+        env_vars = await _deploy_to_sandbox(config, token_proxy=_token_proxy)
 
         # Resolve model: explicit param > env var > None (CLI default)
         resolved_model = model_name or os.environ.get("INSPECT_COCO_MODEL")
