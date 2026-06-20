@@ -1,0 +1,60 @@
+name: Build Sandbox Image
+
+on:
+    push:
+        branches: [main]
+        paths:
+            - "src/inspect_coco/sandbox/Dockerfile"
+            - ".github/workflows/sandbox-image.yml"
+    workflow_dispatch:
+        inputs:
+            cortex_channel:
+                description: "Cortex Code CLI channel (stable, beta, canary)"
+                required: false
+                default: "beta"
+
+env:
+    REGISTRY: ghcr.io
+    IMAGE_NAME: kameshsampath/inspect-coco-sandbox
+    CORTEX_CHANNEL: ${{ github.event.inputs.cortex_channel || 'beta' }}
+
+jobs:
+    build-and-push:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            packages: write
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: docker/login-action@v3
+              with:
+                  registry: ${{ env.REGISTRY }}
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+
+            - uses: docker/metadata-action@v5
+              id: meta
+              with:
+                  images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+                  tags: |
+                      type=raw,value=latest
+                      type=raw,value=${{ env.CORTEX_CHANNEL }}
+                      type=sha,prefix=
+                  labels: |
+                      org.opencontainers.image.title=inspect-coco-sandbox
+                      org.opencontainers.image.description=Eval sandbox for inspect-coco with Cortex Code CLI (${{ env.CORTEX_CHANNEL }} channel)
+                      org.opencontainers.image.source=https://github.com/kameshsampath/inspect-coco
+                      org.opencontainers.image.licenses=Apache-2.0
+                      dev.inspect-coco.cortex-channel=${{ env.CORTEX_CHANNEL }}
+
+            - uses: docker/build-push-action@v6
+              with:
+                  context: src/inspect_coco/sandbox
+                  file: src/inspect_coco/sandbox/Dockerfile
+                  push: true
+                  tags: ${{ steps.meta.outputs.tags }}
+                  labels: ${{ steps.meta.outputs.labels }}
+                  build-args: |
+                      CORTEX_CHANNEL=${{ env.CORTEX_CHANNEL }}

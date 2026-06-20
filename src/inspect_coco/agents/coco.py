@@ -39,18 +39,27 @@ def coco(
         workdir: Working directory inside the sandbox.
     """
     _credentials_deployed = False
+    _token_proxy = None
 
     async def execute(state: AgentState) -> AgentState:
-        nonlocal _credentials_deployed
+        nonlocal _credentials_deployed, _token_proxy
 
         # Deploy credentials on first invocation
         if not _credentials_deployed:
             config = resolve_connection(connection_name)
-            env_vars = await _deploy_to_sandbox(config)
+
+            # Start token proxy for OAuth connections
+            if config.oauth_access_token:
+                from inspect_coco.proxy.server import TokenProxy
+
+                _token_proxy = TokenProxy(account=config.account, role=config.role)
+                _token_proxy.start()
+
+            env_vars = await _deploy_to_sandbox(config, token_proxy=_token_proxy)
             _credentials_deployed = True
         else:
             config = resolve_connection(connection_name)
-            env_vars = _build_env_from_config(config)
+            env_vars = _build_env_from_config(config, token_proxy=_token_proxy)
 
         # Resolve model: explicit param > env var > None (CLI default)
         resolved_model = model_name or os.environ.get("INSPECT_COCO_MODEL")
@@ -107,7 +116,7 @@ def coco(
     return execute
 
 
-async def _deploy_to_sandbox(config):
+async def _deploy_to_sandbox(config, token_proxy=None):
     """Deploy credentials into the sandbox and return env vars."""
     from inspect_coco.config.deployer import deploy_credentials as _deploy
 
@@ -121,10 +130,13 @@ async def _deploy_to_sandbox(config):
             stderr=result.stderr,
         )
 
-    return await _deploy(config, _exec_wrapper)
+    env_vars = await _deploy(config, _exec_wrapper)
+    if token_proxy:
+        env_vars["TOKEN_PROXY_PORT"] = str(token_proxy.port)
+    return env_vars
 
 
-def _build_env_from_config(config) -> dict[str, str]:
+def _build_env_from_config(config, token_proxy=None) -> dict[str, str]:
     """Build env vars from config without redeploying."""
     env: dict[str, str] = {
         "SNOWFLAKE_ACCOUNT": config.account,
@@ -136,6 +148,8 @@ def _build_env_from_config(config) -> dict[str, str]:
         env["SNOWFLAKE_ROLE"] = config.role
     if config.warehouse:
         env["SNOWFLAKE_WAREHOUSE"] = config.warehouse
+    if token_proxy:
+        env["TOKEN_PROXY_PORT"] = str(token_proxy.port)
     return env
 
 

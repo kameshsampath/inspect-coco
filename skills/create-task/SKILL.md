@@ -34,7 +34,7 @@ ask_user_question:
   header: "Connection"
   question: "No default connection found. Which connection should this eval use?"
   type: "options"
-  options: <list section names from connections.toml that use JWT or PAT>
+  options: <list section names from connections.toml that use OAUTH_AUTHORIZATION_CODE (recommended for local dev), JWT, or PAT>
 ```
 
 Then ask the user:

@@ -61,6 +61,7 @@ nav:
     - Home:
           - Overview: index.md
           - Architecture: architecture.md
+          - Security: security.md
     - User Guide:
           - Getting Started: getting-started.md
           - Writing Evals: writing-evals.md

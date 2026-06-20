@@ -9,6 +9,15 @@ tasks:
         cmds:
             - task --list
 
+    # --- Quickstart ---
+
+    quickstart:
+        desc: Install, run the hello-world eval, and open results
+        cmds:
+            - task: install
+            - uv run inspect-coco run examples/hello-world --epochs=3
+            - uv run inspect view
+
     # --- Development ---
 
     install:
@@ -68,6 +77,11 @@ tasks:
             - uv run mkdocs gh-deploy --force
 
     # --- Eval ---
+
+    eval:scaffold:
+        desc: Generate eval tasks from CoCo plugin structure
+        cmds:
+            - uv run inspect-coco scaffold {{.CLI_ARGS}}
 
     eval:run:
         desc: Run eval suite on examples

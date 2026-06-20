@@ -30,7 +30,7 @@ Before generating eval tasks, ask the user:
 Verify the following are available:
 - `uv` or `pip` (for dependency installation)
 - Docker (required for sandbox execution)
-- `~/.snowflake/connections.toml` exists with a valid connection (JWT or PAT)
+- `~/.snowflake/connections.toml` exists with a valid connection (OAuth, JWT, or PAT)
 - `cortex exec --help` works (beta channel required)
 
 If any prerequisite is missing, explain what's needed and how to fix it.
@@ -44,7 +44,7 @@ ask_user_question:
   header: "Connection"
   question: "No default connection found. Which connection should evals use?"
   type: "options"
-  options: <list section names from connections.toml that use JWT or PAT>
+  options: <list section names from connections.toml that use OAUTH_AUTHORIZATION_CODE (recommended for local dev), JWT, or PAT>
 ```
 
 Use the selected connection name in the generated `.env` file.

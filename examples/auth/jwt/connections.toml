@@ -1,0 +1,7 @@
+[default]
+account = "myorg-myaccount"
+user = "myuser"
+authenticator = "SNOWFLAKE_JWT"
+private_key_path = "~/.snowflake/keys/rsa_key.p8"
+role = "SYSADMIN"
+warehouse = "COMPUTE_WH"

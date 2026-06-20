@@ -9,9 +9,11 @@ readme = "README.md"
 dependencies = [
     "click>=8.0",
     "inspect-ai>=0.3.100",
+    "keyring>=25.0",
     "pydantic>=2.0",
     "python-dotenv>=1.0",
     "pyyaml>=6.0",
+    "requests>=2.28",
     "toml>=0.10",
 ]
 
@@ -50,6 +52,7 @@ asyncio_mode = "auto"
 testpaths = ["tests"]
 markers = [
     "docker: tests requiring Docker daemon (deselect with -m 'not docker')",
+    "live: tests requiring real Snowflake credentials (deselect with -m 'not live')",
 ]
 
 [tool.pyright]
