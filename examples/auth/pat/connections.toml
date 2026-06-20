@@ -1,0 +1,7 @@
+[default]
+account = "myorg-myaccount"
+user = "myuser"
+authenticator = "PROGRAMMATIC_ACCESS_TOKEN"
+token = "ver:1-hint:YOUR_TOKEN_HERE"
+role = "SYSADMIN"
+warehouse = "COMPUTE_WH"

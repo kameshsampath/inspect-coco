@@ -171,7 +171,6 @@ def _eval_task(
     try:
         logs = inspect_eval(
             tasks=task_obj,
-            display="none",
             **eval_kwargs,
         )
     except Exception as e:

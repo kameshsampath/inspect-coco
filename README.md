@@ -2,6 +2,7 @@
 
 [![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://kameshsampath.github.io/inspect-coco/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
+[![Sandbox Image](https://img.shields.io/badge/ghcr.io-inspect--coco--sandbox-purple?logo=docker)](https://ghcr.io/kameshsampath/inspect-coco-sandbox)
 
 > [!NOTE]
 > Early development. The API may change. Not yet published to PyPI.
@@ -17,10 +18,18 @@ Deterministic evaluations for
 ## Prerequisites
 
 - Python 3.12+
-- Docker running
+- Docker 20.10+ running
 - [Cortex Code CLI](https://docs.snowflake.com/en/user-guide/cortex-code/cortex-code)
   installed (beta channel). Verify with: `cortex exec --help`
-- `~/.snowflake/connections.toml` with a JWT or PAT connection
+- `~/.snowflake/connections.toml` with a supported authenticator:
+
+| Authenticator | Best for | Notes |
+|--------------|----------|-------|
+| `OAUTH_AUTHORIZATION_CODE` | Local dev (recommended) | Browser login, keychain storage, no secrets in Docker |
+| `SNOWFLAKE_JWT` | CI / automation | Key-pair auth, key deployed into sandbox |
+| `PROGRAMMATIC_ACCESS_TOKEN` | CI / automation | Long-lived token deployed into sandbox |
+
+See [Security Model](docs/security.md) for details on how credentials are handled.
 
 ## Quickstart
 
@@ -95,15 +104,36 @@ See [docs/cli.md](docs/cli.md) for the full command reference.
 ## How it works
 
 ```mermaid
-flowchart TB
-    A[instruction.md] --> B{IDD Scoring}
-    B -->|pass| C[Docker Sandbox]
-    B -->|warn/fail| D[Feedback]
-    C --> E[cortex exec]
-    E --> F[test.sh]
-    F --> G{Score}
-    G -->|"repeat N epochs"| C
-    G --> H["pass@k metric"]
+sequenceDiagram
+    participant User as inspect-coco run
+    participant IDD as IDD Scorer
+    participant Auth as Connection Resolver
+    participant Proxy as Token Proxy
+    participant Docker as Docker Sandbox
+    participant Agent as cortex exec
+
+    User->>IDD: Score instruction.md
+    IDD-->>User: IDD quality gate
+
+    User->>Auth: resolve_connection()
+    alt OAuth
+        Auth->>Auth: Load from keyring / browser login
+        Auth->>Proxy: Start proxy thread (random port)
+    else JWT / PAT
+        Auth->>Auth: Load key or token from config
+    end
+
+    User->>Docker: Start sandbox container
+    loop For each epoch
+        Docker->>Agent: Run cortex exec
+        alt OAuth
+            Agent->>Proxy: GET /token (via host-gateway)
+            Proxy-->>Agent: Short-lived access_token
+        end
+        Agent-->>Docker: Agent output
+        Docker->>Docker: Run test.sh
+    end
+    Docker-->>User: Eval log with pass@k score
 ```
 
 Agents are non-deterministic. The same vague prompt produces different
@@ -232,6 +262,7 @@ src/inspect_coco/
 - [IDD Scoring](docs/idd-scoring.md)
 - [Writing Evals](docs/writing-evals.md)
 - [Architecture](docs/architecture.md)
+- [Security Model](docs/security.md)
 
 ## External references
 

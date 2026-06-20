@@ -1,0 +1,55 @@
+name: Lint & Test
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+
+jobs:
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: astral-sh/setup-uv@v4
+              with:
+                  version: "latest"
+
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+
+            - name: Install dependencies
+              run: uv sync
+
+            - name: Ruff check
+              run: uv run ruff check src/ tests/ examples/
+
+            - name: Ruff format check
+              run: uv run ruff format --check src/ tests/ examples/
+
+            - name: Pyright
+              run: uv run pyright src/inspect_coco/config/ src/inspect_coco/proxy/
+
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: astral-sh/setup-uv@v4
+              with:
+                  version: "latest"
+
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+
+            - name: Install dependencies
+              run: uv sync
+
+            - name: Unit tests
+              run: uv run pytest --ignore=tests/integration -m "not docker and not live" -q
+
+            - name: Auth example tests
+              run: uv run pytest examples/auth/ -m "not live" -q

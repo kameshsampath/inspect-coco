@@ -8,6 +8,8 @@ from typing import Protocol
 from inspect_coco.config.connection import SnowflakeConnectionConfig
 from inspect_coco.config.pem import normalize_pem, pem_to_base64_payload, remote_key_path
 
+TOKEN_PROXY_HOST = "token-proxy"
+
 
 class SandboxExec(Protocol):
     """Protocol for executing commands in a sandbox container."""
@@ -123,6 +125,9 @@ def _generate_connections_toml(
     elif config.token:
         lines.append('authenticator = "PROGRAMMATIC_ACCESS_TOKEN"')
         lines.append(f'token = "{config.token}"')
+    elif config.oauth_access_token:
+        lines.append('authenticator = "OAUTH"')
+        lines.append(f'token = "{config.oauth_access_token}"')
 
     if config.role:
         lines.append(f'role = "{config.role}"')
@@ -153,6 +158,8 @@ def _build_env_vars(
         env["SNOWFLAKE_PRIVATE_KEY_FILE"] = remote_key
     if config.token:
         env["SNOWFLAKE_TOKEN"] = config.token
+    if config.oauth_access_token:
+        env["SNOWFLAKE_OAUTH_TOKEN_HOST"] = TOKEN_PROXY_HOST
     if config.role:
         env["SNOWFLAKE_ROLE"] = config.role
     if config.warehouse:

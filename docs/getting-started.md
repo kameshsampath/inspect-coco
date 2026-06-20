@@ -17,8 +17,11 @@ You need the following tools installed and working before proceeding:
 
     Password authentication is not supported. You must use one of:
 
+    - **Local OAuth** (`OAUTH_AUTHORIZATION_CODE`) -- recommended for local development. Browser login, tokens stored in OS keychain, no secrets in Docker.
     - **Key-pair authentication (JWT)** with a PEM private key file
     - **Programmatic Access Token (PAT)**
+
+    See the [Security Model](security.md) for a comparison.
 
 ## Install inspect-coco
 
@@ -46,15 +49,42 @@ snow connection add
 
 Or edit `~/.snowflake/connections.toml` directly:
 
-```toml title="~/.snowflake/connections.toml"
-[default]
-account = "myorg-myaccount"
-user = "myuser"
-authenticator = "SNOWFLAKE_JWT"
-private_key_file = "~/.snowflake/rsa_key.p8"
-role = "DEVELOPER"
-warehouse = "COMPUTE_WH"
-```
+=== "OAuth (recommended for local dev)"
+
+    ```toml title="~/.snowflake/connections.toml"
+    [default]
+    account = "myorg-myaccount"
+    user = "myuser"
+    authenticator = "OAUTH_AUTHORIZATION_CODE"
+    role = "DEVELOPER"
+    warehouse = "COMPUTE_WH"
+    ```
+
+    No key files or tokens needed. The browser opens automatically on first use.
+
+=== "JWT (key-pair)"
+
+    ```toml title="~/.snowflake/connections.toml"
+    [default]
+    account = "myorg-myaccount"
+    user = "myuser"
+    authenticator = "SNOWFLAKE_JWT"
+    private_key_file = "~/.snowflake/rsa_key.p8"
+    role = "DEVELOPER"
+    warehouse = "COMPUTE_WH"
+    ```
+
+=== "PAT (programmatic access token)"
+
+    ```toml title="~/.snowflake/connections.toml"
+    [default]
+    account = "myorg-myaccount"
+    user = "myuser"
+    authenticator = "PROGRAMMATIC_ACCESS_TOKEN"
+    token = "ver:1-hint:..."
+    role = "DEVELOPER"
+    warehouse = "COMPUTE_WH"
+    ```
 
 !!! tip "Non-default connections"
 

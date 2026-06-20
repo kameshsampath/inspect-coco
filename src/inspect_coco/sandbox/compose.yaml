@@ -1,10 +1,10 @@
 services:
   default:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/kameshsampath/inspect-coco-sandbox:latest
     init: true
     command: ["tail", "-f", "/dev/null"]
+    extra_hosts:
+      - "token-proxy:host-gateway"
     env_file:
       - path: .env
         required: false

@@ -213,6 +213,105 @@ user = "testuser"
         with pytest.raises(ConnectionResolutionError, match="no supported auth method"):
             resolve_connection()
 
+    def test_oauth_authorization_code_authenticator(self, sf_home: Path):
+        """Explicit OAUTH_AUTHORIZATION_CODE authenticator uses cached tokens."""
+        import time
+
+        from inspect_coco.config.oauth import OAuthTokens, save_cached_tokens
+
+        save_cached_tokens(
+            OAuthTokens(
+                access_token="oauth-at",
+                refresh_token="oauth-rt",
+                expires_at=time.time() + 600,
+                account="myorg-myaccount",
+            )
+        )
+        (sf_home / "connections.toml").write_text("""
+[default]
+account = "myorg-myaccount"
+user = "testuser"
+authenticator = "OAUTH_AUTHORIZATION_CODE"
+""")
+        config = resolve_connection()
+        assert config.oauth_access_token == "oauth-at"
+        assert config.authenticator == "OAUTH_AUTHORIZATION_CODE"
+
+    def test_oauth_authorization_code_no_cached_tokens(self, sf_home: Path):
+        """OAUTH_AUTHORIZATION_CODE without cached tokens triggers browser flow."""
+        import time
+        from unittest.mock import patch
+
+        from inspect_coco.config.oauth import OAuthTokens
+
+        (sf_home / "connections.toml").write_text("""
+[default]
+account = "myorg-myaccount"
+user = "testuser"
+authenticator = "OAUTH_AUTHORIZATION_CODE"
+""")
+        mock_tokens = OAuthTokens(
+            access_token="fresh-at",
+            refresh_token="fresh-rt",
+            expires_at=time.time() + 600,
+            account="myorg-myaccount",
+        )
+        with patch("inspect_coco.config.oauth.authorize", return_value=mock_tokens) as m:
+            config = resolve_connection()
+            m.assert_called_once_with(account="myorg-myaccount", role=None)
+        assert config.oauth_access_token == "fresh-at"
+        assert config.authenticator == "OAUTH_AUTHORIZATION_CODE"
+
+
+class TestOAuthFallback:
+    """Tests for OAuth token fallback in connection resolution."""
+
+    def test_oauth_fallback_when_no_other_auth(self, sf_home: Path, monkeypatch):
+        """When no JWT/PAT configured, falls back to cached OAuth tokens."""
+        import time
+
+        from inspect_coco.config.oauth import OAuthTokens, save_cached_tokens
+
+        save_cached_tokens(
+            OAuthTokens(
+                access_token="oauth-at",
+                refresh_token="oauth-rt",
+                expires_at=time.time() + 600,
+                account="myorg-myaccount",
+                role="ANALYST",
+            )
+        )
+        (sf_home / "connections.toml").write_text("""
+[default]
+account = "myorg-myaccount"
+user = "testuser"
+""")
+        config = resolve_connection()
+        assert config.oauth_access_token == "oauth-at"
+        assert config.authenticator == "OAUTH_AUTHORIZATION_CODE"
+
+    def test_oauth_fallback_wrong_account(self, sf_home: Path, monkeypatch):
+        """OAuth tokens for a different account are not used."""
+        import time
+
+        from inspect_coco.config.oauth import OAuthTokens, save_cached_tokens
+
+        save_cached_tokens(
+            OAuthTokens(
+                access_token="oauth-at",
+                refresh_token="oauth-rt",
+                expires_at=time.time() + 600,
+                account="other-account",
+            )
+        )
+        (sf_home / "connections.toml").write_text("""
+[default]
+account = "myorg-myaccount"
+user = "testuser"
+""")
+        with pytest.raises(ConnectionResolutionError, match="no supported auth method"):
+            resolve_connection()
+
     def test_connection_name_not_found(self, sf_home: Path):
         (sf_home / "connections.toml").write_text("""
 [default]
@@ -236,6 +335,12 @@ class TestSnowflakeConnectionConfig:
     def test_authenticator_pat(self):
         config = SnowflakeConnectionConfig(account="a", user="u", host="h", token="pat")
         assert config.authenticator == "PROGRAMMATIC_ACCESS_TOKEN"
+
+    def test_authenticator_oauth(self):
+        config = SnowflakeConnectionConfig(
+            account="a", user="u", host="h", oauth_access_token="oat"
+        )
+        assert config.authenticator == "OAUTH_AUTHORIZATION_CODE"
 
     def test_authenticator_none_raises(self):
         config = SnowflakeConnectionConfig(account="a", user="u", host="h")

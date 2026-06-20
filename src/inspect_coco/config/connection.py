@@ -26,6 +26,7 @@ class SnowflakeConnectionConfig:
     schema: str | None = None
     private_key_path: str | None = None
     token: str | None = None
+    oauth_access_token: str | None = None
 
     @property
     def authenticator(self) -> str:
@@ -33,9 +34,11 @@ class SnowflakeConnectionConfig:
             return "SNOWFLAKE_JWT"
         if self.token:
             return "PROGRAMMATIC_ACCESS_TOKEN"
+        if self.oauth_access_token:
+            return "OAUTH_AUTHORIZATION_CODE"
         raise ValueError(
             "No supported auth method found. "
-            "Provide private_key_path (JWT) or token (PAT) in your connection config."
+            "Provide private_key_path (JWT), token (PAT), or run 'inspect-coco login'."
         )
 
 
@@ -139,7 +142,6 @@ def _parse_connection_section(section: dict, connection_name: str) -> SnowflakeC
     unsupported_types = [
         "EXTERNALBROWSER",
         "OAUTH",
-        "OAUTH_AUTHORIZATION_CODE",
         "OAUTH_CLIENT_CREDENTIALS",
         "USERNAME_PASSWORD_MFA",
     ]
@@ -147,7 +149,22 @@ def _parse_connection_section(section: dict, connection_name: str) -> SnowflakeC
         raise ConnectionResolutionError(
             f"Connection '{connection_name}' uses authenticator '{authenticator}', "
             f"which is not supported in Docker environments.\n"
-            f"Supported methods: SNOWFLAKE_JWT (key-pair) or PROGRAMMATIC_ACCESS_TOKEN (PAT)."
+            f"Supported methods: SNOWFLAKE_JWT (key-pair), PROGRAMMATIC_ACCESS_TOKEN (PAT), "
+            f"or OAUTH_AUTHORIZATION_CODE (via 'inspect-coco login')."
+        )
+
+    # OAUTH_AUTHORIZATION_CODE: resolve via cached local OAuth tokens
+    if authenticator == "OAUTH_AUTHORIZATION_CODE":
+        oauth_access_token = _resolve_oauth_token(account, section.get("role"))
+        return SnowflakeConnectionConfig(
+            account=account,
+            user=user,
+            host=host,
+            role=section.get("role"),
+            warehouse=section.get("warehouse"),
+            database=section.get("database"),
+            schema=section.get("schema"),
+            oauth_access_token=oauth_access_token,
         )
 
     # PAT fallback from environment
@@ -170,10 +187,26 @@ def _parse_connection_section(section: dict, connection_name: str) -> SnowflakeC
                 f"Connection '{connection_name}' uses password authentication, "
                 f"which is not supported. Use key-pair (JWT) or PAT instead."
             )
-        raise ConnectionResolutionError(
-            f"Connection '{connection_name}' has no supported auth method.\n"
-            f"Supported: private_key_path/private_key_file (JWT) or token/token_file_path (PAT).\n"
-            f"See: https://docs.snowflake.com/en/developer-guide/snowflake-cli/connecting/configure-connections"
+
+        # Try OAuth cached tokens as last resort
+        oauth_access_token = _try_oauth_token(account)
+        if not oauth_access_token:
+            raise ConnectionResolutionError(
+                f"Connection '{connection_name}' has no supported auth method.\n"
+                f"Supported: private_key_path/private_key_file (JWT), token/token_file_path (PAT), "
+                f"or authenticator = 'OAUTH_AUTHORIZATION_CODE'.\n"
+                f"See: https://docs.snowflake.com/en/developer-guide/snowflake-cli/connecting/configure-connections"
+            )
+
+        return SnowflakeConnectionConfig(
+            account=account,
+            user=user,
+            host=host,
+            role=section.get("role"),
+            warehouse=section.get("warehouse"),
+            database=section.get("database"),
+            schema=section.get("schema"),
+            oauth_access_token=oauth_access_token,
         )
 
     return SnowflakeConnectionConfig(
@@ -187,3 +220,39 @@ def _parse_connection_section(section: dict, connection_name: str) -> SnowflakeC
         private_key_path=private_key_path,
         token=token,
     )
+
+
+def _try_oauth_token(account: str) -> str | None:
+    """Attempt to load a valid OAuth access token from cache (passive, no browser)."""
+    from inspect_coco.config.oauth import get_valid_token, load_cached_tokens
+
+    tokens = load_cached_tokens(account=account)
+    if tokens is None:
+        return None
+    tokens = get_valid_token(tokens)
+    return tokens.access_token
+
+
+_oauth_token_cache: dict[str, str] = {}
+
+
+def _resolve_oauth_token(account: str, role: str | None = None) -> str:
+    """Get a valid OAuth access token, triggering the browser flow if needed."""
+    from inspect_coco.config.oauth import authorize, get_valid_token, load_cached_tokens
+
+    # In-memory cache to avoid repeated browser opens within the same process
+    if account in _oauth_token_cache:
+        tokens = load_cached_tokens(account=account)
+        if tokens is not None and not tokens.is_expired:
+            return tokens.access_token
+
+    tokens = load_cached_tokens(account=account)
+    if tokens is not None:
+        tokens = get_valid_token(tokens)
+        _oauth_token_cache[account] = tokens.access_token
+        return tokens.access_token
+
+    # No cached tokens — run the browser OAuth flow
+    tokens = authorize(account=account, role=role)
+    _oauth_token_cache[account] = tokens.access_token
+    return tokens.access_token

@@ -1,0 +1,6 @@
+[default]
+account = "myorg-myaccount"
+user = "myuser"
+authenticator = "OAUTH_AUTHORIZATION_CODE"
+role = "SYSADMIN"
+warehouse = "COMPUTE_WH"

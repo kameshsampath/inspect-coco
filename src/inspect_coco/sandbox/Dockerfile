@@ -1,5 +1,10 @@
 FROM python:3.12-slim
 
+LABEL org.opencontainers.image.title="inspect-coco-sandbox"
+LABEL org.opencontainers.image.description="Eval sandbox for inspect-coco with Cortex Code CLI"
+LABEL org.opencontainers.image.source="https://github.com/kameshsampath/inspect-coco"
+LABEL org.opencontainers.image.licenses="Apache-2.0"
+
 # System dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \

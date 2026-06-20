@@ -30,21 +30,40 @@ sequenceDiagram
 
 ## Credential flow
 
-The agent needs Snowflake credentials to call the Cortex API. These never leave the host filesystem unencrypted.
+The agent needs Snowflake credentials to call the Cortex API. The credential flow varies by authentication method:
 
 ```mermaid
 flowchart TD
     A["~/.snowflake/connections.toml"] --> B[resolve_connection]
-    B --> C{Auth method?}
-    C -->|JWT| D[Read PEM key file]
-    C -->|PAT| E[Read token]
-    D --> F[deploy_credentials]
-    E --> F
-    F --> G["/root/.snowflake/connections.toml<br/>(inside container, chmod 0600)"]
-    F --> H["/root/.snowflake/private_key.p8<br/>(if JWT, chmod 0600)"]
-    G --> I[cortex exec uses connection]
-    H --> I
+    B --> C{authenticator?}
+    C -->|OAUTH_AUTHORIZATION_CODE| D[Load from OS keychain]
+    C -->|SNOWFLAKE_JWT| E[Read PEM key file]
+    C -->|PROGRAMMATIC_ACCESS_TOKEN| F[Read token]
+
+    D --> G{Tokens cached?}
+    G -->|Yes| H[Start token proxy thread]
+    G -->|No| I[Browser OAuth flow]
+    I --> J[Store in keychain]
+    J --> H
+
+    E --> K[deploy_credentials]
+    F --> K
+    H --> L["Sandbox calls GET /token via host-gateway"]
+
+    K --> M["/root/.snowflake/connections.toml (inside container)"]
+    L --> M
+    M --> N[cortex exec uses connection]
 ```
+
+| Auth method | Secret storage | What enters Docker | Refresh capability |
+|-------------|---------------|-------------------|-------------------|
+| OAuth (recommended) | OS keychain (encrypted) | Short-lived access token only | Automatic (silent + browser re-auth) |
+| JWT | Host filesystem | PEM private key | N/A (key never expires) |
+| PAT | Host filesystem / env var | Token value | N/A (long-lived) |
+
+!!! tip "Recommended for local development"
+
+    Use `authenticator = "OAUTH_AUTHORIZATION_CODE"` for the strongest security posture. The sandbox never holds any long-lived credential. See the [Security Model](security.md) page for details.
 
 !!! note "Connection resolution"
 
@@ -64,6 +83,11 @@ flowchart LR
         UV[uv]
     end
 
+    subgraph HostAccess ["Host Access (via extra_hosts)"]
+        direction TB
+        TokenProxy["Token Proxy (OAuth)"]
+    end
+
     subgraph Mounted
         direction TB
         Creds[Snowflake credentials]
@@ -72,6 +96,7 @@ flowchart LR
     end
 
     Mounted --> Container
+    HostAccess --> Container
     Container --> Result[Exit code + stdout]
 ```
 
@@ -81,6 +106,7 @@ The container includes:
 - **Cortex Code CLI** (beta channel by default, controlled via `CORTEX_CHANNEL` build arg)
 - **pytest** for running test suites
 - **uv** for package management inside the sandbox
+- **host-gateway access** to the token proxy (OAuth connections only)
 
 ## Scoring pipeline
 
