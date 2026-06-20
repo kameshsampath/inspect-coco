@@ -1,5 +1,8 @@
 # Inspect CoCo
 
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://kameshsampath.github.io/inspect-coco/)
+[![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
+
 > [!NOTE]
 > Early development. The API may change. Not yet published to PyPI.
 
@@ -239,4 +242,17 @@ src/inspect_coco/
 
 ## License
 
-Apache-2.0
+Apache-2.0. See [LICENSE](LICENSE) for details.
+
+## Citation
+
+If you use inspect-coco in your research or publications:
+
+```bibtex
+@software{inspect_coco,
+  author = {Sampath, Kamesh},
+  title = {inspect-coco: Deterministic Evaluations for Cortex Code Skills},
+  url = {https://github.com/kameshsampath/inspect-coco},
+  license = {Apache-2.0}
+}
+```

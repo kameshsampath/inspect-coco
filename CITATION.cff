@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "inspect-coco: Deterministic Evaluations for Cortex Code Skills"
+type: software
+license: Apache-2.0
+url: "https://github.com/kameshsampath/inspect-coco"
+repository-code: "https://github.com/kameshsampath/inspect-coco"
+authors:
+  - family-names: Sampath
+    given-names: Kamesh
+    email: kamesh.sampath@hotmail.com
+    orcid: ""
+keywords:
+  - evaluations
+  - cortex-code
+  - inspect-ai
+  - intent-driven-development
+  - deterministic-testing
+  - snowflake
