@@ -14,7 +14,7 @@
         <link rel="canonical" href="https://kameshsampath.github.io/inspect-coco/getting-started/">
       
       
-        <link rel="prev" href="../architecture/">
+        <link rel="prev" href="../security/">
       
       
         <link rel="next" href="../writing-evals/">
@@ -330,6 +330,8 @@
       
         
       
+        
+      
     
     
     
@@ -401,6 +403,34 @@
     
   
     Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
   
 
     
@@ -1218,9 +1248,14 @@
 <td><a href="https://www.python.org/downloads/">python.org</a></td>
 </tr>
 <tr>
-<td>Docker</td>
+<td>Docker 20.10+</td>
 <td>Sandbox execution</td>
 <td><a href="https://docs.docker.com/get-started/get-docker/">docker.com</a></td>
+</tr>
+<tr>
+<td><a href="https://taskfile.dev/">Task</a></td>
+<td>Task runner</td>
+<td><code>brew install go-task</code> or <a href="https://taskfile.dev/installation/">other methods</a></td>
 </tr>
 <tr>
 <td>Snowflake CLI (<code>snow</code>)</td>
@@ -1229,7 +1264,7 @@
 </tr>
 <tr>
 <td>Cortex Code CLI</td>
-<td>Agent runtime</td>
+<td>Agent runtime (beta)</td>
 <td><a href="https://docs.snowflake.com/en/user-guide/cortex-code/cortex-code">docs.snowflake.com</a></td>
 </tr>
 </tbody>
@@ -1238,19 +1273,26 @@
 <p class="admonition-title">Authentication</p>
 <p>Password authentication is not supported. You must use one of:</p>
 <ul>
+<li><strong>Local OAuth</strong> (<code>OAUTH_AUTHORIZATION_CODE</code>) -- recommended for local development. Browser login, tokens stored in OS keychain, no secrets in Docker.</li>
 <li><strong>Key-pair authentication (JWT)</strong> with a PEM private key file</li>
 <li><strong>Programmatic Access Token (PAT)</strong></li>
 </ul>
+<p>See the <a href="../security/">Security Model</a> for a comparison.</p>
 </div>
 <h2 id="install-inspect-coco">Install inspect-coco<a class="headerlink" href="#install-inspect-coco" title="Permanent link">#</a></h2>
+<p>The recommended approach is to clone the repo and use the Taskfile:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/kameshsampath/inspect-coco.git<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>inspect-coco
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>task<span class="w"> </span>install
+</span></code></pre></div>
+<p>Alternatively, install as a dependency in another project:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">uv (recommended)</label><label for="__tabbed_1_2">pip</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>add<span class="w"> </span>git+https://github.com/kameshsampath/inspect-coco.git
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>uv<span class="w"> </span>add<span class="w"> </span>git+https://github.com/kameshsampath/inspect-coco.git
 </span></code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/kameshsampath/inspect-coco.git
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/kameshsampath/inspect-coco.git
 </span></code></pre></div>
 </div>
 </div>
@@ -1258,24 +1300,50 @@
 <h2 id="configure-snowflake-connection">Configure Snowflake connection<a class="headerlink" href="#configure-snowflake-connection" title="Permanent link">#</a></h2>
 <p>inspect-coco reads your existing <code>~/.snowflake/connections.toml</code> file. If you already use the <code>snow</code> CLI or Cortex Code, you are set.</p>
 <p>To create a new connection:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>snow<span class="w"> </span>connection<span class="w"> </span>add
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>snow<span class="w"> </span>connection<span class="w"> </span>add
 </span></code></pre></div>
 <p>Or edit <code>~/.snowflake/connections.toml</code> directly:</p>
-<div class="language-toml highlight"><span class="filename">~/.snowflake/connections.toml</span><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">[default]</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">account</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;myorg-myaccount&quot;</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;myuser&quot;</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">authenticator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;SNOWFLAKE_JWT&quot;</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">private_key_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;~/.snowflake/rsa_key.p8&quot;</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">role</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;DEVELOPER&quot;</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">warehouse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;COMPUTE_WH&quot;</span>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:3"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">OAuth (recommended for local dev)</label><label for="__tabbed_2_2">JWT (key-pair)</label><label for="__tabbed_2_3">PAT (programmatic access token)</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-toml highlight"><span class="filename">~/.snowflake/connections.toml</span><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">[default]</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">account</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;myorg-myaccount&quot;</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;myuser&quot;</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">authenticator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;OAUTH_AUTHORIZATION_CODE&quot;</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">role</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;DEVELOPER&quot;</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">warehouse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;COMPUTE_WH&quot;</span>
 </span></code></pre></div>
+<p>No key files or tokens needed. The browser opens automatically on first use.</p>
+</div>
+<div class="tabbed-block">
+<div class="language-toml highlight"><span class="filename">~/.snowflake/connections.toml</span><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">[default]</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">account</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;myorg-myaccount&quot;</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;myuser&quot;</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">authenticator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;SNOWFLAKE_JWT&quot;</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">private_key_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;~/.snowflake/rsa_key.p8&quot;</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="n">role</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;DEVELOPER&quot;</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="n">warehouse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;COMPUTE_WH&quot;</span>
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-toml highlight"><span class="filename">~/.snowflake/connections.toml</span><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">[default]</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">account</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;myorg-myaccount&quot;</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;myuser&quot;</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">authenticator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;PROGRAMMATIC_ACCESS_TOKEN&quot;</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;ver:1-hint:...&quot;</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="n">role</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;DEVELOPER&quot;</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="n">warehouse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;COMPUTE_WH&quot;</span>
+</span></code></pre></div>
+</div>
+</div>
+</div>
 <div class="admonition tip">
 <p class="admonition-title">Non-default connections</p>
 <p>If your connection is not named <code>default</code>, set the environment variable:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">INSPECT_COCO_SNOWFLAKE_CONNECTION</span><span class="o">=</span>my-connection
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">INSPECT_COCO_SNOWFLAKE_CONNECTION</span><span class="o">=</span>my-connection
 </span></code></pre></div>
 <p>Or create a <code>.env</code> file in your project root:</p>
-<div class="language-text highlight"><span class="filename">.env</span><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>INSPECT_COCO_SNOWFLAKE_CONNECTION=my-connection
+<div class="language-text highlight"><span class="filename">.env</span><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>INSPECT_COCO_SNOWFLAKE_CONNECTION=my-connection
 </span></code></pre></div>
 </div>
 <div class="admonition info">
@@ -1283,7 +1351,11 @@
 <p>Set <code>SNOWFLAKE_HOME</code> if your configuration lives somewhere other than <code>~/.snowflake</code>.</p>
 </div>
 <h2 id="run-your-first-eval">Run your first eval<a class="headerlink" href="#run-your-first-eval" title="Permanent link">#</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>inspect-coco<span class="w"> </span>run<span class="w"> </span>examples/hello-world
+<p>If you cloned the repo, you can run everything in one command:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>task<span class="w"> </span>quickstart
+</span></code></pre></div>
+<p>Or step by step:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>task<span class="w"> </span>eval:run<span class="w"> </span>--<span class="w"> </span>examples/hello-world<span class="w"> </span>--epochs<span class="o">=</span><span class="m">3</span>
 </span></code></pre></div>
 <p>This does the following:</p>
 <ol>
@@ -1294,7 +1366,7 @@
 <li>Repeats 3 times (epochs) for consistency measurement.</li>
 </ol>
 <h2 id="view-results">View results<a class="headerlink" href="#view-results" title="Permanent link">#</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>inspect<span class="w"> </span>view
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>task<span class="w"> </span>eval:view
 </span></code></pre></div>
 <p>This opens a browser-based log viewer showing:</p>
 <ul>
@@ -1347,7 +1419,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../architecture/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Architecture">
+          <a href="../security/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Security">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1357,7 +1429,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Architecture
+                Security
               </div>
             </div>
           </a>

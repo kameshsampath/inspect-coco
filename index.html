@@ -330,6 +330,8 @@
       
         
       
+        
+      
     
     
     
@@ -399,6 +401,34 @@
     
   
     Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
   
 
     
@@ -1010,6 +1040,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#why-inspect-ai" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Inspect AI?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#why-structured-instructions-matter" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1063,8 +1104,10 @@
 
 
 <h1 id="inspect-coco">Inspect CoCo<a class="headerlink" href="#inspect-coco" title="Permanent link">#</a></h1>
-<p><strong>Deterministic skill evaluations for Cortex Code agents.</strong></p>
-<p>inspect-coco measures whether your CoCo skills produce correct, consistent results. It runs your agent against structured instructions inside isolated Docker containers, scores the output with deterministic tests, and repeats the process to surface flaky behavior.</p>
+<p><strong>AI agents are non-deterministic. Test whether yours works reliably.</strong></p>
+<p>inspect-coco runs your agent against structured instructions inside
+isolated Docker containers, verifies output with deterministic tests,
+and repeats the process to surface flaky behavior.</p>
 <p>The core question it answers: <em>does this skill do the right thing every time?</em></p>
 <h2 id="how-it-works">How it works<a class="headerlink" href="#how-it-works" title="Permanent link">#</a></h2>
 <pre class="mermaid"><code>flowchart TD
@@ -1083,22 +1126,27 @@
 <li>A <strong>verification script</strong> checks whether the agent produced the correct result.</li>
 <li><strong>Epochs</strong> repeat the process multiple times to measure consistency.</li>
 </ol>
+<h2 id="why-inspect-ai">Why Inspect AI?<a class="headerlink" href="#why-inspect-ai" title="Permanent link">#</a></h2>
+<p>Agent evaluation requires sandboxed code execution, not text scoring. See
+<a href="why-inspect-ai/">Why Inspect AI?</a> for the full rationale and comparison
+with Promptfoo, DeepEval, Braintrust, LangSmith, and Eleuther.</p>
 <h2 id="why-structured-instructions-matter">Why structured instructions matter<a class="headerlink" href="#why-structured-instructions-matter" title="Permanent link">#</a></h2>
-<p>Vague instructions produce inconsistent results. When you tell an agent to "set up the project properly," each run may take a different path. Structured instructions (IDD format) narrow the solution space so the agent converges on the same correct behavior across runs.</p>
-<p>This is the hypothesis inspect-coco helps you validate: <strong>high instruction quality predicts high pass@k consistency.</strong></p>
+<p>Vague instructions produce inconsistent results. When you tell an agent to
+"set up the project properly," each run takes a different path. Structured
+instructions (IDD format) narrow the solution space so the agent converges
+on the same correct behavior across runs.</p>
+<p>This is the hypothesis inspect-coco validates: <strong>high instruction quality
+predicts high pass@k consistency.</strong></p>
 <h2 id="quick-start">Quick start<a class="headerlink" href="#quick-start" title="Permanent link">#</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Install</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>uv<span class="w"> </span>add<span class="w"> </span>git+https://github.com/kameshsampath/inspect-coco.git
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Run the example evals</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>inspect-coco<span class="w"> </span>run<span class="w"> </span>examples/
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># View results in the browser</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>inspect<span class="w"> </span>view
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/kameshsampath/inspect-coco.git<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>inspect-coco
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>task<span class="w"> </span>quickstart
 </span></code></pre></div>
+<p>This installs dependencies, runs the <code>hello-world</code> eval (3 epochs), and
+opens the results viewer.</p>
 <div class="admonition tip">
 <p class="admonition-title">First time setup</p>
-<p>See <a href="getting-started/">Getting Started</a> for prerequisites (Docker, Snowflake CLI, connection configuration) and a full walkthrough.</p>
+<p>See <a href="getting-started/">Getting Started</a> for prerequisites (Docker,
+Task, Cortex Code CLI, Snowflake connection) and a full walkthrough.</p>
 </div>
 <h2 id="what-you-get">What you get<a class="headerlink" href="#what-you-get" title="Permanent link">#</a></h2>
 <ul>
@@ -1106,6 +1154,7 @@
 <li><strong>IDD quality feedback</strong> on your instructions before running expensive evals</li>
 <li><strong>Full transcripts</strong> of every agent conversation (tool calls, responses, timing)</li>
 <li><strong>Scaffolding</strong> that generates eval tasks from existing plugin structure</li>
+<li><strong>Zero SaaS dependencies</strong> -- everything runs locally with Docker</li>
 </ul>
 
 

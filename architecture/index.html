@@ -17,7 +17,7 @@
         <link rel="prev" href="..">
       
       
-        <link rel="next" href="../getting-started/">
+        <link rel="next" href="../security/">
       
       
         
@@ -332,6 +332,8 @@
       
         
       
+        
+      
     
     
     
@@ -511,6 +513,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1201,18 +1231,61 @@
     end
     Docker--&gt;&gt;CLI: Eval log with scores</code></pre>
 <h2 id="credential-flow">Credential flow<a class="headerlink" href="#credential-flow" title="Permanent link">#</a></h2>
-<p>The agent needs Snowflake credentials to call the Cortex API. These never leave the host filesystem unencrypted.</p>
+<p>The agent needs Snowflake credentials to call the Cortex API. The credential flow varies by authentication method:</p>
 <pre class="mermaid"><code>flowchart TD
     A["~/.snowflake/connections.toml"] --&gt; B[resolve_connection]
-    B --&gt; C{Auth method?}
-    C --&gt;|JWT| D[Read PEM key file]
-    C --&gt;|PAT| E[Read token]
-    D --&gt; F[deploy_credentials]
-    E --&gt; F
-    F --&gt; G["/root/.snowflake/connections.toml&lt;br/&gt;(inside container, chmod 0600)"]
-    F --&gt; H["/root/.snowflake/private_key.p8&lt;br/&gt;(if JWT, chmod 0600)"]
-    G --&gt; I[cortex exec uses connection]
-    H --&gt; I</code></pre>
+    B --&gt; C{authenticator?}
+    C --&gt;|OAUTH_AUTHORIZATION_CODE| D[Load from OS keychain]
+    C --&gt;|SNOWFLAKE_JWT| E[Read PEM key file]
+    C --&gt;|PROGRAMMATIC_ACCESS_TOKEN| F[Read token]
+
+    D --&gt; G{Tokens cached?}
+    G --&gt;|Yes| H[Start token proxy thread]
+    G --&gt;|No| I[Browser OAuth flow]
+    I --&gt; J[Store in keychain]
+    J --&gt; H
+
+    E --&gt; K[deploy_credentials]
+    F --&gt; K
+    H --&gt; L["Sandbox calls GET /token via host-gateway"]
+
+    K --&gt; M["/root/.snowflake/connections.toml (inside container)"]
+    L --&gt; M
+    M --&gt; N[cortex exec uses connection]</code></pre>
+<table>
+<thead>
+<tr>
+<th>Auth method</th>
+<th>Secret storage</th>
+<th>What enters Docker</th>
+<th>Refresh capability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OAuth (recommended)</td>
+<td>OS keychain (encrypted)</td>
+<td>Short-lived access token only</td>
+<td>Automatic (silent + browser re-auth)</td>
+</tr>
+<tr>
+<td>JWT</td>
+<td>Host filesystem</td>
+<td>PEM private key</td>
+<td>N/A (key never expires)</td>
+</tr>
+<tr>
+<td>PAT</td>
+<td>Host filesystem / env var</td>
+<td>Token value</td>
+<td>N/A (long-lived)</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="admonition-title">Recommended for local development</p>
+<p>Use <code>authenticator = "OAUTH_AUTHORIZATION_CODE"</code> for the strongest security posture. The sandbox never holds any long-lived credential. See the <a href="../security/">Security Model</a> page for details.</p>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Connection resolution</p>
 <p>The resolver checks <code>INSPECT_COCO_SNOWFLAKE_CONNECTION</code> first, then falls back to a connection named <code>default</code> in your TOML file. Run <code>snow connection list</code> to see available connections.</p>
@@ -1228,6 +1301,11 @@
         UV[uv]
     end
 
+    subgraph HostAccess ["Host Access (via extra_hosts)"]
+        direction TB
+        TokenProxy["Token Proxy (OAuth)"]
+    end
+
     subgraph Mounted
         direction TB
         Creds[Snowflake credentials]
@@ -1236,6 +1314,7 @@
     end
 
     Mounted --&gt; Container
+    HostAccess --&gt; Container
     Container --&gt; Result[Exit code + stdout]</code></pre>
 <p>The container includes:</p>
 <ul>
@@ -1243,6 +1322,7 @@
 <li><strong>Cortex Code CLI</strong> (beta channel by default, controlled via <code>CORTEX_CHANNEL</code> build arg)</li>
 <li><strong>pytest</strong> for running test suites</li>
 <li><strong>uv</strong> for package management inside the sandbox</li>
+<li><strong>host-gateway access</strong> to the token proxy (OAuth connections only)</li>
 </ul>
 <h2 id="scoring-pipeline">Scoring pipeline<a class="headerlink" href="#scoring-pipeline" title="Permanent link">#</a></h2>
 <p>Two scorers run after the agent completes:</p>
@@ -1319,13 +1399,13 @@
         
         
           
-          <a href="../getting-started/" class="md-footer__link md-footer__link--next" aria-label="Next: Getting Started">
+          <a href="../security/" class="md-footer__link md-footer__link--next" aria-label="Next: Security">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Getting Started
+                Security
               </div>
             </div>
             <div class="md-footer__button md-icon">

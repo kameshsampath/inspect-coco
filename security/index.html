@@ -11,25 +11,31 @@
       
       
       
+        <link rel="canonical" href="https://kameshsampath.github.io/inspect-coco/security/">
       
+      
+        <link rel="prev" href="../architecture/">
+      
+      
+        <link rel="next" href="../getting-started/">
       
       
         
       
       
-      <link rel="icon" href="/inspect-coco/assets/images/favicon.png">
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Inspect CoCo</title>
+        <title>Security - Inspect CoCo</title>
       
     
     
-      <link rel="stylesheet" href="/inspect-coco/assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="/inspect-coco/assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
   
@@ -103,11 +109,11 @@
       
     
     
-      <link rel="stylesheet" href="/inspect-coco/assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="/inspect-coco/stylesheets/extra.css">
+      <link rel="stylesheet" href="../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("/inspect-coco/",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -131,6 +137,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#security-model" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -143,7 +154,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="/inspect-coco/." title="Inspect CoCo" class="md-header__button md-logo" aria-label="Inspect CoCo" data-md-component="logo">
+    <a href=".." title="Inspect CoCo" class="md-header__button md-logo" aria-label="Inspect CoCo" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -163,7 +174,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              
+              Security
             
           </span>
         </div>
@@ -281,7 +292,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="/inspect-coco/." title="Inspect CoCo" class="md-nav__button md-logo" aria-label="Inspect CoCo" data-md-component="logo">
+    <a href=".." title="Inspect CoCo" class="md-nav__button md-logo" aria-label="Inspect CoCo" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -308,6 +319,8 @@
       
   
   
+    
+  
   
   
     
@@ -330,17 +343,15 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="/inspect-coco/." class="md-nav__link ">
+            <a href=".." class="md-nav__link ">
               
   
   
@@ -364,7 +375,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_1">
             <span class="md-nav__icon md-icon"></span>
             
@@ -384,7 +395,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/inspect-coco/architecture/" class="md-nav__link">
+      <a href="../architecture/" class="md-nav__link">
         
   
   
@@ -409,10 +420,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="/inspect-coco/security/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -428,6 +466,170 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication Methods
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#oauth-token-proxy-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OAuth Token Proxy Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OAuth Token Proxy Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How it works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security boundaries
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-the-sandbox-can-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the sandbox can access
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#random-port-assignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Random port assignment
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#threat-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Threat Model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keyring-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Keyring Storage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Keyring Storage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ciheadless-fallback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CI/Headless fallback
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#snowflakelocal_application-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SNOWFLAKE$LOCAL_APPLICATION Integration
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -515,7 +717,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/inspect-coco/getting-started/" class="md-nav__link">
+      <a href="../getting-started/" class="md-nav__link">
         
   
   
@@ -543,7 +745,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/inspect-coco/writing-evals/" class="md-nav__link">
+      <a href="../writing-evals/" class="md-nav__link">
         
   
   
@@ -571,7 +773,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/inspect-coco/suite-yaml/" class="md-nav__link">
+      <a href="../suite-yaml/" class="md-nav__link">
         
   
   
@@ -599,7 +801,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/inspect-coco/task-toml/" class="md-nav__link">
+      <a href="../task-toml/" class="md-nav__link">
         
   
   
@@ -627,7 +829,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/inspect-coco/idd-scoring/" class="md-nav__link">
+      <a href="../idd-scoring/" class="md-nav__link">
         
   
   
@@ -655,7 +857,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/inspect-coco/metrics/" class="md-nav__link">
+      <a href="../metrics/" class="md-nav__link">
         
   
   
@@ -690,7 +892,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/inspect-coco/cli/" class="md-nav__link">
+      <a href="../cli/" class="md-nav__link">
         
   
   
@@ -717,7 +919,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/inspect-coco/references/" class="md-nav__link">
+      <a href="../references/" class="md-nav__link">
         
   
   
@@ -781,7 +983,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="/inspect-coco/api/" class="md-nav__link ">
+            <a href="../api/" class="md-nav__link ">
               
   
   
@@ -825,7 +1027,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/inspect-coco/api/tasks/" class="md-nav__link">
+      <a href="../api/tasks/" class="md-nav__link">
         
   
   
@@ -853,7 +1055,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/inspect-coco/api/scorers/" class="md-nav__link">
+      <a href="../api/scorers/" class="md-nav__link">
         
   
   
@@ -881,7 +1083,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/inspect-coco/api/agents/" class="md-nav__link">
+      <a href="../api/agents/" class="md-nav__link">
         
   
   
@@ -909,7 +1111,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/inspect-coco/api/idd/" class="md-nav__link">
+      <a href="../api/idd/" class="md-nav__link">
         
   
   
@@ -937,7 +1139,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/inspect-coco/api/suite/" class="md-nav__link">
+      <a href="../api/suite/" class="md-nav__link">
         
   
   
@@ -965,7 +1167,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/inspect-coco/api/config/" class="md-nav__link">
+      <a href="../api/config/" class="md-nav__link">
         
   
   
@@ -1010,6 +1212,160 @@
   
   
   
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication Methods
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#oauth-token-proxy-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OAuth Token Proxy Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OAuth Token Proxy Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How it works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security boundaries
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-the-sandbox-can-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the sandbox can access
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#random-port-assignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Random port assignment
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#threat-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Threat Model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keyring-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Keyring Storage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Keyring Storage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ciheadless-fallback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CI/Headless fallback
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#snowflakelocal_application-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SNOWFLAKE$LOCAL_APPLICATION Integration
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -1022,8 +1378,247 @@
               
               <article class="md-content__inner md-typeset">
                 
-  <h1>404 - Not found</h1>
+                  
 
+
+  
+  
+
+
+<h1 id="security-model">Security Model<a class="headerlink" href="#security-model" title="Permanent link">#</a></h1>
+<p>This page describes how inspect-coco handles authentication credentials and the security boundaries between the host, the token proxy, and the eval sandbox.</p>
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">#</a></h2>
+<ul>
+<li><strong>Docker 20.10+</strong> required (for <code>host-gateway</code> support in <code>extra_hosts</code>)</li>
+<li><strong>macOS/Linux/Windows</strong> with a keyring backend (Keychain, SecretService, or Windows Credential Locker)</li>
+</ul>
+<h2 id="authentication-methods">Authentication Methods<a class="headerlink" href="#authentication-methods" title="Permanent link">#</a></h2>
+<p>inspect-coco supports three authentication methods for connecting to Snowflake:</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Config key</th>
+<th>Secret type</th>
+<th>Sandbox exposure</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Key-pair (JWT)</td>
+<td><code>authenticator = "SNOWFLAKE_JWT"</code></td>
+<td>PEM private key</td>
+<td>Key deployed into sandbox</td>
+</tr>
+<tr>
+<td>Programmatic Access Token</td>
+<td><code>authenticator = "PROGRAMMATIC_ACCESS_TOKEN"</code></td>
+<td>Long-lived token</td>
+<td>Token deployed into sandbox</td>
+</tr>
+<tr>
+<td>Local OAuth</td>
+<td><code>authenticator = "OAUTH_AUTHORIZATION_CODE"</code></td>
+<td>Refresh token (host keyring only)</td>
+<td>Short-lived access tokens only</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="admonition-title">Recommended for untrusted evals</p>
+<p>Use <code>OAUTH_AUTHORIZATION_CODE</code> when running evals against untrusted or
+third-party tasks. The sandbox never receives any long-lived credential.</p>
+</div>
+<h2 id="oauth-token-proxy-architecture">OAuth Token Proxy Architecture<a class="headerlink" href="#oauth-token-proxy-architecture" title="Permanent link">#</a></h2>
+<p>When using <code>OAUTH_AUTHORIZATION_CODE</code>, inspect-coco uses a <strong>host-process token proxy</strong> that keeps all long-lived secrets on the host machine:</p>
+<pre class="mermaid"><code>sequenceDiagram
+    participant CLI as inspect-coco run
+    participant Proxy as Token Proxy Thread
+    participant Keyring as OS Keychain
+    participant Browser as Browser
+    participant SF as Snowflake
+    participant Sandbox as Docker Sandbox
+
+    CLI-&gt;&gt;Keyring: Load refresh_token
+    alt No token cached
+        CLI-&gt;&gt;Browser: Open OAuth authorize URL
+        Browser-&gt;&gt;CLI: Callback with auth code
+        CLI-&gt;&gt;SF: Exchange code for tokens
+        CLI-&gt;&gt;Keyring: Store refresh_token
+    end
+    CLI-&gt;&gt;Proxy: Start thread on random port
+    CLI-&gt;&gt;Sandbox: Start Docker compose
+    Sandbox-&gt;&gt;Proxy: GET http://token-proxy:PORT/token
+    Proxy-&gt;&gt;Proxy: Refresh if expired
+    Proxy--&gt;&gt;Sandbox: access_token (10 min TTL)</code></pre>
+<h3 id="how-it-works">How it works<a class="headerlink" href="#how-it-works" title="Permanent link">#</a></h3>
+<ol>
+<li><strong>Connection resolution</strong> detects <code>OAUTH_AUTHORIZATION_CODE</code> in your connections.toml</li>
+<li>If no tokens are cached, your <strong>browser opens automatically</strong> for Snowflake login</li>
+<li>The refresh token is stored in your <strong>OS keychain</strong> (encrypted at rest)</li>
+<li>A lightweight <strong>token proxy thread</strong> starts on a random available port</li>
+<li>The sandbox reaches the proxy via Docker's <code>host-gateway</code> mechanism</li>
+<li>The sandbox only ever receives short-lived access tokens (~10 min TTL)</li>
+<li>If the refresh token expires during a long eval run, the proxy <strong>re-opens the browser</strong> automatically</li>
+</ol>
+<h3 id="security-boundaries">Security boundaries<a class="headerlink" href="#security-boundaries" title="Permanent link">#</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    subgraph hostZone [Host Machine - Trusted]
+        Keyring["OS Keychain (encrypted)"]
+        ProxyThread["Token proxy thread (127.0.0.1:random)"]
+        BrowserFlow["Browser OAuth flow"]
+    end
+
+    subgraph sandboxZone [Docker Sandbox - Untrusted]
+        CortexCLI["cortex exec"]
+        EvalCode["Eval task code"]
+    end
+
+    BrowserFlow --&gt; Keyring
+    Keyring --&gt; ProxyThread
+    CortexCLI --&gt;|"GET /token via host-gateway"| ProxyThread
+    ProxyThread --&gt;|"access_token only"| CortexCLI</code></pre>
+<h3 id="what-the-sandbox-can-access">What the sandbox can access<a class="headerlink" href="#what-the-sandbox-can-access" title="Permanent link">#</a></h3>
+<table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Accessible?</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Refresh token</td>
+<td>No</td>
+<td>Stored in host keychain, never enters Docker</td>
+</tr>
+<tr>
+<td>Access token</td>
+<td>Yes</td>
+<td>Short-lived (~10 min), fetched via HTTP from host proxy</td>
+</tr>
+<tr>
+<td>Token proxy endpoint</td>
+<td>Yes</td>
+<td>Via <code>host-gateway</code> on random port</td>
+</tr>
+<tr>
+<td>Host filesystem</td>
+<td>No</td>
+<td>No volume mounts to sandbox</td>
+</tr>
+<tr>
+<td>OS keychain</td>
+<td>No</td>
+<td>Requires host-level access</td>
+</tr>
+</tbody>
+</table>
+<h3 id="random-port-assignment">Random port assignment<a class="headerlink" href="#random-port-assignment" title="Permanent link">#</a></h3>
+<p>The proxy binds to <code>127.0.0.1:0</code> (OS assigns a random available port). This:
+- Eliminates port conflicts with other services
+- Adds an obscurity layer (port must be discovered)
+- The assigned port is passed to Docker via the <code>TOKEN_PROXY_PORT</code> env var</p>
+<h2 id="threat-model">Threat Model<a class="headerlink" href="#threat-model" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Threat</th>
+<th>Risk</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Eval code reads long-lived credentials from sandbox</td>
+<td>Eliminated</td>
+<td>No secrets in Docker at all</td>
+</tr>
+<tr>
+<td>Compromised eval code authenticates to Snowflake</td>
+<td>Time-limited</td>
+<td>Access token expires in ~10 minutes</td>
+</tr>
+<tr>
+<td>Container escape to host</td>
+<td>Low (kernel vuln)</td>
+<td>Same risk as running Docker itself</td>
+</tr>
+<tr>
+<td>Token proxy port scanning</td>
+<td>Low</td>
+<td>Bound to 127.0.0.1, random port, ephemeral</td>
+</tr>
+<tr>
+<td>Refresh token theft</td>
+<td>Eliminated from Docker</td>
+<td>Stored in OS keychain, requires host-level access + login password</td>
+</tr>
+</tbody>
+</table>
+<h2 id="keyring-storage">Keyring Storage<a class="headerlink" href="#keyring-storage" title="Permanent link">#</a></h2>
+<p>Tokens are stored in your OS keychain with the following structure:</p>
+<table>
+<thead>
+<tr>
+<th>Keychain entry</th>
+<th>Service name</th>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Refresh token</td>
+<td><code>{account}.inspect-coco</code></td>
+<td><code>refresh_token</code></td>
+<td>The refresh token string</td>
+</tr>
+<tr>
+<td>Metadata</td>
+<td><code>{account}.inspect-coco</code></td>
+<td><code>token_metadata</code></td>
+<td>JSON: access_token, expires_at, role</td>
+</tr>
+</tbody>
+</table>
+<p>On macOS, you can inspect these in <strong>Keychain Access.app</strong> (search for "inspect-coco").</p>
+<h3 id="ciheadless-fallback">CI/Headless fallback<a class="headerlink" href="#ciheadless-fallback" title="Permanent link">#</a></h3>
+<p>When no keyring backend is available (CI environments, headless servers), tokens fall back to a file at <code>~/.snowflake/inspect-coco-oauth.json</code> with 0600 permissions. A warning is logged when this fallback is used.</p>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">#</a></h2>
+<div class="language-toml highlight"><span class="filename">~/.snowflake/connections.toml</span><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">[default]</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">account</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;myorg-myaccount&quot;</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;myuser&quot;</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">authenticator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;OAUTH_AUTHORIZATION_CODE&quot;</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">role</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;SYSADMIN&quot;</span>
+</span></code></pre></div>
+<p>No additional setup needed. The browser flow triggers automatically on first use.</p>
+<h2 id="snowflakelocal_application-integration">SNOWFLAKE$LOCAL_APPLICATION Integration<a class="headerlink" href="#snowflakelocal_application-integration" title="Permanent link">#</a></h2>
+<p>The OAuth flow uses Snowflake's built-in <code>SNOWFLAKE$LOCAL_APPLICATION</code> security integration, which is designed for local development tooling. This integration:</p>
+<ul>
+<li>Issues refresh tokens (enabling silent token renewal without browser interaction)</li>
+<li>Uses the Authorization Code + PKCE flow (no client secret needed)</li>
+<li>Is pre-configured in Snowflake accounts (no admin setup required)</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Refresh token lifetime</p>
+<p>The refresh token TTL is controlled by the integration configuration. For long-running eval suites, ensure the TTL exceeds your longest expected run time. Access tokens (~10 min) are refreshed silently using the refresh token — no browser interaction needed during the run.</p>
+</div>
+<p>For more details on Snowflake OAuth integrations, see the <a href="https://docs.snowflake.com/en/user-guide/oauth-snowflake-overview">official documentation</a>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
               </article>
             </div>
           
@@ -1043,6 +1638,44 @@
       
         <footer class="md-footer">
   
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../architecture/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Architecture">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Architecture
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../getting-started/" class="md-footer__link md-footer__link--next" aria-label="Next: Getting Started">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Getting Started
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
     
   
   <div class="md-footer-meta md-typeset">
@@ -1072,10 +1705,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "/inspect-coco/", "features": ["content.code.copy", "content.code.select", "content.code.annotate", "content.tabs.link", "content.tooltips", "navigation.sections", "navigation.expand", "navigation.instant", "navigation.instant.progress", "navigation.tracking", "navigation.footer", "navigation.top", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight"], "search": "/inspect-coco/assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.code.copy", "content.code.select", "content.code.annotate", "content.tabs.link", "content.tooltips", "navigation.sections", "navigation.expand", "navigation.instant", "navigation.instant.progress", "navigation.tracking", "navigation.footer", "navigation.top", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="/inspect-coco/assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
