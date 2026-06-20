@@ -171,6 +171,7 @@ def _eval_task(
     try:
         logs = inspect_eval(
             tasks=task_obj,
+            display="none",
             **eval_kwargs,
         )
     except Exception as e:
@@ -178,10 +179,96 @@ def _eval_task(
         logger.exception("Eval failed for %s", task_dir.name)
         return False
 
-    # Check results
+    # Check results and print summary
     for log in logs:
         if log.status == "error":
             click.echo(f"  FAILED {task_dir.name}: {log.error}", err=True)
             return False
 
+        _print_eval_summary(log, task_dir.name)
+
     return True
+
+
+def _print_eval_summary(log, task_name: str) -> None:
+    """Print per-epoch results after eval completes."""
+    if not log.samples:
+        return
+
+    from rich.console import Console
+    from rich.table import Table
+
+    console = Console()
+
+    # Collect per-epoch scores from all scorers
+    epoch_data: dict[int, dict[str, float]] = {}
+    for sample in log.samples:
+        epoch = sample.epoch or 1
+        if epoch not in epoch_data:
+            epoch_data[epoch] = {}
+        if sample.scores:
+            for scorer_name, score in sample.scores.items():
+                val = score.value if hasattr(score, "value") else None
+                if isinstance(val, int | float):
+                    epoch_data[epoch][scorer_name] = val
+
+    if not epoch_data:
+        return
+
+    # Build table
+    table = Table(title=f"{task_name}", title_style="bold", show_lines=False)
+    table.add_column("Epoch", style="dim", justify="right")
+    table.add_column("Result", justify="center")
+    table.add_column("Score", justify="right")
+    table.add_column("IDD", justify="right")
+
+    for epoch_num in sorted(epoch_data):
+        scores = epoch_data[epoch_num]
+        verification = None
+        idd = None
+        for name, val in scores.items():
+            if "erification" in name:
+                verification = val
+            elif "IDD" in name or "idd" in name:
+                idd = val
+
+        if verification is not None:
+            result = "[green]PASS[/green]" if verification == 1.0 else "[red]FAIL[/red]"
+            score_str = f"{verification:.2f}"
+        else:
+            result = "[dim]---[/dim]"
+            score_str = "---"
+
+        idd_str = f"{idd:.2f}" if idd is not None else "---"
+        table.add_row(str(epoch_num), result, score_str, idd_str)
+
+    # Summary row
+    v_scores = [
+        scores.get(name, 0.0)
+        for _, scores in sorted(epoch_data.items())
+        for name in scores
+        if "erification" in name
+    ]
+
+    if v_scores:
+        total = len(v_scores)
+        passed = sum(1 for v in v_scores if v == 1.0)
+        mean = sum(v_scores) / len(v_scores)
+        variance = sum((v - mean) ** 2 for v in v_scores) / len(v_scores)
+
+        table.add_section()
+        consistency = (
+            "[green]perfect[/green]"
+            if variance == 0
+            else f"[yellow]variance={variance:.3f}[/yellow]"
+        )
+        pass_style = "[green]" if passed == total else "[yellow]"
+        table.add_row(
+            f"pass@{total}",
+            f"{pass_style}{passed}/{total}[/]",
+            f"{mean:.2f}",
+            consistency,
+        )
+
+    console.print()
+    console.print(table)
